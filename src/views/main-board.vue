@@ -59,10 +59,10 @@ import { Container, Draggable } from 'vue3-smooth-dnd';
 import { socketService } from '../services/socket.service';
 import { utilService } from '../services/util.service';
 import boardHeader from '../components/board-header.vue';
-import mainHeader from '../components/main-header.vue';
+import mainHeader from '../components/header/main-header.vue';
 import boardGroup from '../components/board-group.vue';
 import addGroup from '../components/add-group.vue';
-import createBoard from '../components/create-board.vue';
+import createBoard from '../components/header/create-board.vue';
 import taskDetails from '../components/task-details.vue';
 import taskQuickEdit from '../components/task-quick-edit.vue';
 

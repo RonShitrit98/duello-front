@@ -84,9 +84,9 @@
 
 <script>
 import iconBase from '../components/icon-base.vue';
-import mainHeader from '../components/main-header.vue';
+import mainHeader from '../components/header/main-header.vue';
 import boardList from '../components/board-list.vue';
-import createBoard from '../components/create-board.vue';
+import createBoard from '../components/header/create-board.vue';
 import allBoards from '../components/all-boards.vue';
 import loader from '../components/loader.vue';
 

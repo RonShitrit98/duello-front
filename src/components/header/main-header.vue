@@ -2,9 +2,9 @@
   <section :class="['main-header', txtClr]" :style="`background-color: ${bcg};`">
     <nav>
       <div class="buttons">
-        <button>
+        <!-- <button>
           <icon-base iconName="grid" class="grid" />
-        </button>
+        </button> -->
         <button class="main-logo" @click="goHome">
           <div class="logo-img"></div>
           <span>Duello</span>
@@ -16,7 +16,7 @@
         <button>
           Recent
           <icon-base iconName="chevron-down" />
-        </button>-->
+        </button> -->
         <button>
           Boards
           <icon-base iconName="chevron-down" />
@@ -26,9 +26,9 @@
           <icon-base iconName="chevron-down" />
         </button>
         <button @click="toggleCreateModal" class="create-btn">Create</button>
-        <button @click="toggleCreateModal" class="add-btn-mq create-btn">
+        <!-- <button @click="toggleCreateModal" class="add-btn-mq create-btn">
           <icon-base iconName="plus"></icon-base>
-        </button>
+        </button> -->
       </div>
 
       <div class="information">
@@ -49,10 +49,10 @@
       </div>
     </nav>
     <create-board
-      v-if="isCreate"
+      v-if="isCreateBoard"
       @closeModal="toggleCreateModal"
       @create="createBoard"
-      @resizeClose="this.isCreate = false"
+      @resizeClose="isCreateBoard = false"
     />
   </section>
   <section v-if="isUserDetails" class="main-user-modal">
@@ -78,38 +78,36 @@
 </template>
 
 <script>
-import iconBase from './icon-base.vue';
+import iconBase from '../icon-base.vue';
 import createBoard from './create-board.vue';
-import IconBase from './icon-base.vue';
-
 export default {
   data() {
     return {
-      isCreate: false,
-      isUserDetails: false
+      isCreateBoard: false,
+      isUserDetails: false,
     };
   },
   methods: {
     signOut() {
-      var auth2 = gapi.auth2.getAuthInstance();
-      auth2.signOut().then(function () {
-        console.log('User signed out.');
-      });
+      // var auth2 = gapi.auth2.getAuthInstance();
+      // auth2.signOut().then(function () {
+      //   console.log('User signed out.');
+      // });
     },
     goHome() {
       this.$router.push({ path: '/' });
       this.$store.commit('resetBcg');
     },
     toggleCreateModal() {
-      this.isCreate = !this.isCreate;
+      this.isCreateBoard = !this.isCreateBoard;
     },
     async createBoard(board) {
       const id = await this.$store.dispatch({ type: 'createBoard', board });
       this.$router.replace({ path: `/board/${id}` });
     },
     toggleUserDetails() {
-      this.isUserDetails = !this.isUserDetails
-    }
+      this.isUserDetails = !this.isUserDetails;
+    },
   },
   computed: {
     user() {
@@ -124,7 +122,7 @@ export default {
       else return 'light-bcg';
     },
   },
-  async created() { },
-  components: { iconBase, createBoard, IconBase },
+  async created() {},
+  components: { iconBase, createBoard },
 };
 </script>

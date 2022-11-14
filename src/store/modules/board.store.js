@@ -158,11 +158,11 @@ export const boardStore = {
     setGroup(state, { group }) {
       state.currGroup = group;
     },
-    setDesign(state, { design }) {
-      state.imgs = design[0].imgs;
-      state.colors = design[0].colors;
-      state.imgSearches = design[0].suggestedSearches;
-    },
+    // setDesign(state, { design }) {
+    //   state.imgs = design[0].imgs;
+    //   state.colors = design[0].colors;
+    //   state.imgSearches = design[0].suggestedSearches;
+    // },
     resetBcg(state) {
       state.bcg = '#026AA7';
       state.isDark = true;
