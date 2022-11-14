@@ -55,6 +55,7 @@
 </template>
 
 <script>
+import { useBoardStore } from '../store/board.store';
 import { Container, Draggable } from 'vue3-smooth-dnd';
 import { socketService } from '../services/socket.service';
 import { utilService } from '../services/util.service';
@@ -67,12 +68,15 @@ import taskDetails from '../components/task-details.vue';
 import taskQuickEdit from '../components/task-quick-edit.vue';
 
 export default {
+  setup() {
+    const boardStore = useBoardStore();
+    return { boardStore };
+  },
   data() {
     return {
       isOpenModal: false,
       taskId: null,
       groupId: null,
-      board: null,
       quickEditData: null,
       draggingCard: null,
       dropPlaceholderOptions: {
@@ -83,45 +87,49 @@ export default {
     };
   },
   async created() {
-    const board = await this.$store.dispatch({
-      type: 'loadBoard',
-      boardId: this.$route.params.boardId,
-    });
-    this.board = this.$store.getters.board;
-    const user = this.$store.getters.user;
+    const board = await this.boardStore.loadBoard(this.$route.params.boardId);
+    // const board = await this.$store.dispatch({
+    //   type: 'loadBoard',
+    //   boardId: this.$route.params.boardId,
+    // });
+    // this.board = this.$store.getters.board;
+    // const user = this.$store.getters.user;
 
-    socketService.emit('on-board', this.board._id, user._id);
-    socketService.emit('set-user-socket', user._id);
-    socketService.on('update', (board, userId) => {
-      if (userId !== user._id) {
-        console.log('update');
-        this.board = { ...board };
-        return;
-      }
-      this.$store.dispatch({ type: 'updateBoardSocket', board });
-      this.board = this.$store.getters.board;
-    });
+    // socketService.emit('on-board', this.board._id, user._id);
+    // socketService.emit('set-user-socket', user._id);
+    // socketService.on('update', (board, userId) => {
+    // if (userId !== user._id) {
+    //   console.log('update');
+    //   this.board = { ...board };
+    //   return;
+    // }
+    // this.$store.dispatch({ type: 'updateBoardSocket', board });
+    // this.board = this.$store.getters.board;
+    // });
   },
   destroyed() {
     socketService.emit('unset-user-socket');
   },
   methods: {
     async onDragTask(group) {
-      this.board = JSON.parse(JSON.stringify(this.$store.getters.board));
+      // this.board = JSON.parse(JSON.stringify(this.$store.getters.board));
       const idx = this.board.groups.findIndex((grp) => grp.id === group.id);
       this.board.groups.splice(idx, 1, group);
-      await this.$store.dispatch({ type: 'drag', board: JSON.parse(JSON.stringify(this.board)) });
+      await this.boardStore.drag(this.board);
+      // await this.$store.dispatch({ type: 'drag', board: JSON.parse(JSON.stringify(this.board)) });
     },
     setDraggedTask(task) {
       this.draggingCard = task;
     },
     async onDrop(dropResult) {
+      // console.log(dropResult);
       dropResult.payload = this.getChildPayload(dropResult.removedIndex);
       const res = utilService.applyDrag(this.board.groups, dropResult);
-      const board = { ...this.board };
-      board.groups = res;
-      this.board = await this.$store.dispatch({ type: 'drag', board });
-      this.board = this.$store.getters.board;
+      // const board = { ...this.board };
+      this.board.groups = res;
+      await this.boardStore.updateBoard(this.board);
+      // this.board = await this.$store.dispatch({ type: 'drag', board });
+      // this.board = this.$store.getters.board;
     },
     getChildPayload(index) {
       return this.board.groups[index];
@@ -139,33 +147,41 @@ export default {
       this.quickEditData = null;
     },
     addGroup(title) {
-      this.$store.dispatch({
-        type: 'addGroup',
-        title: title,
-        boardId: this.board._id,
-      });
+      // this.$store.dispatch({
+      //   type: 'addGroup',
+      //   title: title,
+      //   boardId: this.board._id,
+      // });
     },
     removeGroup(groupId) {
-      this.$store.dispatch({ type: 'removeGroup', groupId });
+      // this.$store.dispatch({ type: 'removeGroup', groupId });
     },
     editGroup(newGroup) {
-      this.$store.dispatch({ type: 'updateGroup', newGroup });
+      // this.$store.dispatch({ type: 'updateGroup', newGroup });
     },
     removeTask(taskId, groupId) {
-      this.$store.dispatch({ type: 'removeTask', taskId, groupId });
+      // this.$store.dispatch({ type: 'removeTask', taskId, groupId });
     },
     updateTask(taskPartial, groupId) {
-      this.$store.dispatch({ type: 'updateTask', taskPartial, groupId });
+      // this.$store.dispatch({ type: 'updateTask', taskPartial, groupId });
     },
-    addTask(taskTitle, groupId, boardId) {
-      this.$store.dispatch({ type: 'addTask', taskTitle, groupId, boardId });
+    addTask(task, groupId, boardId) {
+      const group = this.board.groups.find((g) => groupId === g.id);
+      group.tasks.push(task);
+      this.boardStore.updateBoard(this.board);
     },
   },
   computed: {
+    board() {
+      return this.boardStore.currBoard;
+    },
     bcg() {
-      if (!this.board) return;
-      if (this.board.style.type === 'img') return `background-image: url(${this.board.style.backgroundImg})`;
-      else return `background-color: ${this.board.style.color}`;
+      const style = this.boardStore.style;
+      if (style.type === 'img') return `background-image: url(${style.backgroundImg})`;
+      else return `background-color: ${style.color}`;
+    },
+    user() {
+      return this.boardStore.currUser;
     },
   },
   components: {

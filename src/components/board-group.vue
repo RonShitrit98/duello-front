@@ -61,13 +61,12 @@
       <div class="create-btn" v-if="isNewTask">
         <div class="new-task-container">
           <div class="textarea-wrapper">
-            <resizable-textarea
+            <textarea
               @focusOut="isNewTask = false"
-              :value="taskTitle"
-              @valueChange="(value) => (taskTitle = value)"
+              v-model="newTask.title"
               class="new-task"
               :autofocus="true"
-            />
+            ></textarea>
           </div>
           <div class="buttons-container">
             <button @mousedown="addTask(group.id)" @touchstart="addTask(group.id)" class="add-card-btn">
@@ -109,6 +108,7 @@
 
 <script>
 import { utilService } from '../services/util.service.js';
+import { taskService } from '../services/task.service';
 import { Container, Draggable } from 'vue3-smooth-dnd';
 import iconBase from './icon-base.vue';
 import taskPreview from '../components/task-preview.vue';
@@ -142,11 +142,12 @@ export default {
       isDrag: false,
       isEditingTask: false,
       boardCopy: JSON.parse(JSON.stringify(this.board)),
+      newTask: taskService.getEmptyTask(),
     };
   },
   created() {
     window.addEventListener('resize', this.onResize);
-    this.$store.commit({ type: 'setGroup', group: this.group });
+    // this.$store.commit({ type: 'setGroup', group: this.group });
   },
   methods: {
     async onDrop(dropResult) {
@@ -180,9 +181,9 @@ export default {
       if (this.isEditModal) this.isEditModal = false;
     },
     toggleLabelsExpanded() {
-      this.$store.dispatch({
-        type: 'toggleLabelsExpanded',
-      });
+      // this.$store.dispatch({
+      //   type: 'toggleLabelsExpanded',
+      // });
     },
     openModalDetails(taskId) {
       this.$emit('onOpen', taskId, this.group.id);
@@ -216,9 +217,9 @@ export default {
       this.isNewTask = !this.isNewTask;
     },
     addTask(groupId) {
-      this.$emit('addTask', this.taskTitle, groupId);
+      this.$emit('addTask', this.newTask, groupId);
+      this.newTask = taskService.getEmptyTask();
       this.isNewTask = false;
-      this.taskTitle = '';
     },
     quickEdit(ev, task) {
       const { left, top, width } = ev.target.closest('li').getBoundingClientRect();

@@ -123,13 +123,13 @@ export default {
       return this.task.comments.length;
     },
     labelsExpanded() {
-      return this.$store.getters.labelsExpanded;
+      // return this.$store.getters.labelsExpanded;
     },
     labels() {
-      return this.$store.getters.boardLabels.filter((label) => {
-        if (!this.task.labelIds) return false;
-        return this.task.labelIds.includes(label.id);
-      });
+      // return this.$store.getters.boardLabels.filter((label) => {
+      //   if (!this.task.labelIds) return false;
+      //   return this.task.labelIds.includes(label.id);
+      // });
     },
     isCover() {
       if (!this.task.style.cover.type) return false;

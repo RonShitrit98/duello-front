@@ -2,7 +2,7 @@ export const utilService = {
   makeId,
   loadFromSessionStorage,
   saveToSessionStorage,
-  applyDrag
+  applyDrag,
 };
 function makeId(length = 8) {
   var txt = '';
@@ -27,13 +27,28 @@ function saveToSessionStorage(key, val) {
 function applyDrag(arr, dragResult) {
   const { removedIndex, addedIndex, payload } = dragResult;
   if (removedIndex === null && addedIndex === null) return arr;
+  console.log(addedIndex, removedIndex);
   const result = [...arr];
   let itemToAdd = payload;
-  if (removedIndex !== null) {
-    itemToAdd = result.splice(removedIndex, 1)[0];
-  }
-  if (addedIndex !== null) {
-    result.splice(addedIndex, 0, itemToAdd);
-  }
+  // if (removedIndex !== null) {
+  itemToAdd = result.splice(removedIndex, 1)[0];
+  result.splice(addedIndex, 0, itemToAdd);
+  // }
+  // if (addedIndex !== null) {
+  // }
   return result;
-};
+}
+
+// function applyDrag(arr, dragResult) {
+//   const { removedIndex, addedIndex, payload } = dragResult;
+//   // if (removedIndex === null && addedIndex === null) return arr;
+//   const result = [...arr];
+//   let itemToAdd = payload;
+//   if (removedIndex !== null) {
+//     itemToAdd = result.splice(removedIndex, 1)[0];
+//   }
+//   if (addedIndex !== null) {
+//     result.splice(addedIndex, 0, itemToAdd);
+//   }
+//   return result;
+// };

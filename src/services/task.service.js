@@ -9,6 +9,7 @@ export const taskService = {
   updateTask,
   getById,
   getEmptyComment,
+  getEmptyTask
 };
 const BOARD_KEY = 'boardDB';
 
@@ -68,7 +69,7 @@ function getEmptyComment() {
     txt: '',
     createdAt: null,
     byMember: {},
-    type: 'comment-cmp'
+    type: 'comment-cmp',
   };
 }
 
@@ -76,7 +77,29 @@ function getEmptyComment() {
 
 async function _findGroup(groupId, boardId) {
   // const board = await storageService.get(BOARD_KEY, boardId);
-  const board = await httpService.get(`board/${boardId}`)
+  const board = await httpService.get(`board/${boardId}`);
   const group = board.groups.find((group) => group.id === groupId);
   return group;
+}
+
+function getEmptyTask() {
+  return {
+    title: '',
+    id: utilService.makeId(),
+    labels: [],
+    members: [],
+    comments: [],
+    activities: [],
+    attachments: [],
+    checklist: [],
+    attachments: [],
+    style: {
+      cover: {
+        type: '',
+        style: '',
+        imgUrl: '',
+        color: '',
+      },
+    },
+  };
 }

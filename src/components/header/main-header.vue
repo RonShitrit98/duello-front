@@ -73,9 +73,9 @@
 </template>
 
 <script>
+import { useBoardStore } from '../../store/board.store';
 import iconBase from '../icon-base.vue';
 import createBoard from './create-board.vue';
-import { useBoardStore } from '../../store/board.store';
 export default {
   setup() {
     const boardStore = useBoardStore();
@@ -117,13 +117,13 @@ export default {
   },
   computed: {
     user() {
-      return this.$store.getters.user;
+      // return this.$store.getters.user;
     },
     bcg() {
-      return this.$store.getters.bcg;
+      // return this.$store.getters.bcg;
     },
     txtClr() {
-      const isDark = this.$store.getters.isDark;
+      const isDark = this.boardStore.style.isDark;
       if (!isDark) return 'dark-bcg';
       else return 'light-bcg';
     },
