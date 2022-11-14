@@ -132,7 +132,7 @@ function getEmptyBoard() {
     title: '',
     subName: '',
     createdAt: null,
-    createdBy: {},
+    createdBy: null,
     style: {
       backgroundImg: null,
       color: null,

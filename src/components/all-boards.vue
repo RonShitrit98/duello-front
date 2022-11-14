@@ -9,8 +9,8 @@
       <div class="boards-container">
         <ul>
           <li v-for="board in starredBoards" :key="board._id">
-            <a
-              :href="'/#/board/' + board._id"
+            <button
+              @click="$router.replace('/board/' + board._id)"
               class="board-title full-star"
               :style="
                 board.style.type === 'img'
@@ -19,15 +19,14 @@
               "
             >
               <span class="board-title-fade"></span>
-
               <div class="board-title-content">
                 <div class="title">{{ board.title }}</div>
                 <div class="container">
                   <span>{{ board.subName }}</span>
-                  <icon-base iconName="starS" class="board-title-icon" @click.prevent="toggleFavorites(board)" />
+                  <icon-base iconName="starS" class="board-title-icon" @click.stop="toggleFavorites(board)" />
                 </div>
               </div>
-            </a>
+            </button>
           </li>
         </ul>
       </div>
@@ -43,8 +42,8 @@
       <div class="boards-container">
         <ul>
           <li v-for="board in boards" :key="board._id">
-            <a
-              :href="'/#/board/' + board._id"
+            <button
+              @click="$router.replace('/board/' + board._id)"
               class="board-title"
               :style="
                 board.style.type === 'img'
@@ -57,17 +56,20 @@
                 <div class="title">{{ board.title }}</div>
                 <div class="container">
                   <span>{{ board.subName }}</span>
-                  <icon-base iconName="starS" :class="['board-title-icon', 'full-star']" />
+                  <icon-base
+                    iconName="starS"
+                    @click.stop="toggleFavorites(board)"
+                    :class="['board-title-icon', 'full-star']"
+                  />
                 </div>
               </div>
-            </a>
+            </button>
           </li>
 
           <li class="last">
             <div class="board-title create">
               <p>Create new board</p>
-              <p>
-              </p>
+              <p></p>
               <div class="li-icon">
                 <icon-base iconName="help" />
               </div>
@@ -92,7 +94,7 @@ export default {
   methods: {
     toggleFavorites(board) {
       board.isStarred = !board.isStarred;
-      this.$store.dispatch({ type: 'updateBoard', board });
+      this.$emit('update', board);
     },
   },
   computed: {

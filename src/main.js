@@ -1,4 +1,5 @@
 import { createApp } from 'vue';
+import { createPinia } from 'pinia';
 import 'v-calendar/dist/style.css';
 import VCalendar from 'v-calendar';
 import App from './App.vue';
@@ -8,6 +9,7 @@ import styles from './styles/styles.scss';
 import KProgress from 'k-progress-v3';
 
 const app = createApp(App);
+app.use(createPinia());
 app.use(router);
 app.use(store);
 app.use(VCalendar, {});

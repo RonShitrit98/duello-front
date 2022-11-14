@@ -48,12 +48,7 @@
         <!-- <button @click="signOut">logout</button> -->
       </div>
     </nav>
-    <create-board
-      v-if="isCreateBoard"
-      @closeModal="toggleCreateModal"
-      @create="createBoard"
-      @resizeClose="isCreateBoard = false"
-    />
+    <create-board v-if="isCreateBoard" @closeModal="toggleCreateModal" @create="createBoard" />
   </section>
   <section v-if="isUserDetails" class="main-user-modal">
     <div class="modal-header">
@@ -80,7 +75,14 @@
 <script>
 import iconBase from '../icon-base.vue';
 import createBoard from './create-board.vue';
+import { useBoardStore } from '../../store/board.store';
 export default {
+  setup() {
+    const boardStore = useBoardStore();
+    return {
+      boardStore,
+    };
+  },
   data() {
     return {
       isCreateBoard: false,
@@ -96,14 +98,18 @@ export default {
     },
     goHome() {
       this.$router.push({ path: '/' });
-      this.$store.commit('resetBcg');
+      // this.$store.commit('resetBcg');
     },
     toggleCreateModal() {
       this.isCreateBoard = !this.isCreateBoard;
     },
     async createBoard(board) {
-      const id = await this.$store.dispatch({ type: 'createBoard', board });
-      this.$router.replace({ path: `/board/${id}` });
+      try {
+        await this.boardStore.createBoard(board);
+        this.$router.replace({ path: `/board/${this.boardStore.currBoard._id}` });
+      } catch (error) {
+        console.log(error);
+      }
     },
     toggleUserDetails() {
       this.isUserDetails = !this.isUserDetails;
