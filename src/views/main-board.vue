@@ -15,7 +15,7 @@
         >
           <Draggable v-for="group in board.groups" :key="group.id" class="group-wrapper">
             <board-group
-              :group="JSON.parse(JSON.stringify(group))"
+              :group="group"
               :board="board"
               :draggingCard="draggingCard"
               @onDragTask="onDragTask"
@@ -35,8 +35,8 @@
     </section>
     <task-details
       v-if="isOpenModal"
-      :taskId="taskId"
-      :groupId="groupId"
+      :task="taskId"
+      :group="groupId"
       :boardId="board._id"
       @closeTaskDetails="isOpenModal = !isOpenModal"
       @updateTask="updateTask"
@@ -135,9 +135,12 @@ export default {
       this.quickEditData = { task, position, width, group };
     },
     openModal(taskId, groupId) {
+      this.groupId = utilService.findItem(groupId, this.board.groups)
+      this.taskId = utilService.findItem(taskId, this.groupId.tasks)
+      console.log(this.taskId, this.groupId)
+      // this.taskId = taskId;
+      // this.groupId = groupId;
       this.isOpenModal = true;
-      this.taskId = taskId;
-      this.groupId = groupId;
       this.quickEditData = null;
     },
     addGroup(group) {

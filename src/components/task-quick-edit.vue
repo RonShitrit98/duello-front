@@ -21,7 +21,6 @@
           :task="this.task"
           :canEditTitle="true"
         ></task-preview>
-        <!-- @editTask="updateTask" -->
         <span class="bcg-helper" v-if="task.style.cover.style === 'background'"></span>
       </div>
       <div class="edit-menu">
@@ -274,11 +273,6 @@ export default {
       utilService.spliceItem(this.group.id, this.board.groups, this.group);
       this.boardStore.updateBoard(this.board);
       this.close();
-    },
-    updateTask() {
-      // this.boardStore.updateBoard;
-      // // console.log(taskPartial)
-      // // this.taskPartial = taskPartial;
     },
     async archive() {
       await this.$store.dispatch({ type: 'removeTask', taskId: this.task, groupId: this.group });

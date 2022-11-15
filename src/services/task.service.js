@@ -9,7 +9,8 @@ export const taskService = {
   updateTask,
   getById,
   getEmptyComment,
-  getEmptyTask
+  getEmptyTask,
+  getEmptyChecklist,
 };
 const BOARD_KEY = 'boardDB';
 
@@ -91,7 +92,7 @@ function getEmptyTask() {
     comments: [],
     activities: [],
     attachments: [],
-    checklist: [],
+    checklists: [],
     attachments: [],
     style: {
       cover: {
@@ -101,5 +102,13 @@ function getEmptyTask() {
         color: '',
       },
     },
+  };
+}
+
+function getEmptyChecklist() {
+  return {
+    id: utilService.makeId(),
+    title: null,
+    tasks: [],
   };
 }

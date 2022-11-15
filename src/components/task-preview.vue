@@ -16,7 +16,6 @@
       </div>
     </div>
     <textarea class="isEditing" v-model="task.title"  v-if="canEditTitle" :autofocus="true"></textarea>
-    <!-- @keyup="saveEdit" -->
     <resizable-textarea v-else :value="taskTitle" :disabled="true" />
     <div v-if="!isCoverBcg" class="task-extras">
       <div class="left">

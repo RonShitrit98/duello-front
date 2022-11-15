@@ -1,9 +1,9 @@
 <template>
-  <section class="checklist-details" v-if="checklist">
+  <section class="checklist-details" v-if="checklist">taskTo
     <div class="header">
       <icon-base class="checklist-icon" iconName="checklist" />
       <div class="container">
-        <h3>{{ listToEdit.title }}</h3>
+        <h3>{{ checklist.title }}</h3>
         <div>
           <button v-if="areDone" @click.stop="isFilter = !isFilter">{{ showHide }}</button>
           <button @click.stop="isRemoveCheck = !isRemoveCheck">Delete</button>
@@ -171,7 +171,7 @@ export default {
       areDone: 0,
       isAdd: false,
       isEdit: false,
-      listToEdit: JSON.parse(JSON.stringify(this.checklist)),
+      // listToEdit: JSON.parse(JSON.stringify(this.checklist)),
       todoToAdd: { id: utilService.makeId(), title: '', isDone: false },
       modalType: null,
       target: null,
@@ -180,19 +180,19 @@ export default {
     };
   },
   created() {
-    this.calcDone();
-    socketService.on('update', () => {
-      setTimeout(() => {
-        this.listToEdit = this.checklist;
-      }, 1000);
-    });
+    // this.calcDone();
+    // socketService.on('update', () => {
+    //   setTimeout(() => {
+    //     this.checklist = this.checklist;
+    //   }, 1000);
+    // });
 
-    socketService.on('loading', (task) => {
-      setTimeout(() => {
-        this.listToEdit = task.checklist.find((currChecklist) => currChecklist.id === this.listToEdit.id);
-        this.calcDone();
-      }, 500);
-    });
+    // socketService.on('loading', (task) => {
+    //   setTimeout(() => {
+    //     this.listToEdit = task.checklist.find((currChecklist) => currChecklist.id === this.listToEdit.id);
+    //     this.calcDone();
+    //   }, 500);
+    // });
   },
   methods: {
     toggleEdit(todoId) {
@@ -215,19 +215,19 @@ export default {
       this.modalType = type;
     },
     removeTodo(todoId) {
-      const idx = this.listToEdit.todos.findIndex((todo) => todo.id === todoId);
-      this.listToEdit.todos.splice(idx, 1);
-      this.$emit('save', { ...this.listToEdit });
+      const idx = this.checklist.todos.findIndex((todo) => todo.id === todoId);
+      this.checklist.todos.splice(idx, 1);
+      this.$emit('save', { ...this.checklist });
     },
     addTodo() {
       if (!this.todoToAdd.title) return;
-      this.listToEdit.todos.push(this.todoToAdd);
-      this.$emit('save', { ...this.listToEdit });
+      this.checklist.todos.push(this.todoToAdd);
+      this.$emit('save', { ...this.checklist });
       this.todoToAdd = { id: utilService.makeId(), title: '', isDone: false };
       this.calcDone();
     },
     saveChecklist() {
-      this.$emit('save', this.listToEdit);
+      this.$emit('save', this.checklist);
       this.calcDone();
       if (this.isEdit) this.isEdit = !this.isEdit;
     },
@@ -236,13 +236,13 @@ export default {
       this.$emit('remove', checkId);
     },
     calcDone() {
-      if (!this.listToEdit.todos.length || !this.listToEdit.todos) {
+      if (!this.checklist.todos.length || !this.checklist.todos) {
         this.length = 1;
         this.areDone = 0;
         return;
       }
-      this.length = this.listToEdit.todos.length;
-      const done = this.listToEdit.todos.filter((todo) => todo.isDone);
+      this.length = this.checklist.todos.length;
+      const done = this.checklist.todos.filter((todo) => todo.isDone);
       this.areDone = done.length;
     },
   },
@@ -252,9 +252,9 @@ export default {
     },
     todosForDisplay() {
       if (this.isFilter) {
-        const unchecked = this.listToEdit.todos.filter((todo) => !todo.isDone);
+        const unchecked = this.checklist.todos.filter((todo) => !todo.isDone);
         return unchecked;
-      } else return this.listToEdit.todos;
+      } else return this.checklist.todos;
     },
     showHide() {
       if (!this.isFilter && this.areDone) return 'Hide checked items';

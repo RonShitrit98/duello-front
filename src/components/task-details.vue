@@ -1,20 +1,20 @@
 <template>
   <div @click.self="closeTaskDetails" class="details-bc">
-    <div class="task-details" v-if="taskToEdit">
+    <div class="task-details" v-if="task">
       <div class="task-header-container">
         <button class="details-btn" @click="closeTaskDetails">
           <icon-base iconName="x" />
         </button>
 
-        <div v-if="taskToEdit.style.cover.type" class="cover-container">
-          <div class="cover-clr" :style="'background-color:' + taskToEdit.style.cover.color">
-            <img class="cover-img" v-if="taskToEdit.style.cover.type === 'img'" :src="taskToEdit.style.cover.imgUrl" />
+        <div v-if="task.style.cover.type" class="cover-container">
+          <div class="cover-clr" :style="'background-color:' + task.style.cover.color">
+            <img class="cover-img" v-if="task.style.cover.type === 'img'" :src="task.style.cover.imgUrl" />
           </div>
         </div>
         <div class="task-details-container">
           <icon-base class="card-header" iconName="cardB" />
           <div>
-            <resizable-textarea :value="taskToEdit.title" @valueChange="handleTitleChange" @focusOut="saveTitle" />
+            <resizable-textarea :value="task.title" @valueChange="handleTitleChange" @focusOut="saveTitle" />
             <div class="info-in-group">
               <p>
                 in list
@@ -27,11 +27,11 @@
       <div class="main-container">
         <div class="content-displayed">
           <div class="container">
-            <div v-if="taskToEdit.members.length" class="member-list">
+            <div v-if="task.members.length" class="member-list">
               <h2>Memebers</h2>
               <div class="member-container">
                 <ul>
-                  <li v-for="member in taskToEdit.members" :key="member._id">
+                  <li v-for="member in task.members" :key="member._id">
                     <img :src="member.imgUrl" />
                   </li>
                 </ul>
@@ -40,7 +40,7 @@
                 </button>
               </div>
             </div>
-            <div class="labels-for-display" v-if="labels.length >= 1">
+            <!-- <div class="labels-for-display" v-if="labels.length >= 1">
               <h2>Labels</h2>
               <div class="labels-container">
                 <div class="label" v-for="label in labels" :key="label.id" :style="'background-color:' + label.color">
@@ -50,26 +50,26 @@
                   <icon-base iconName="plus" />
                 </button>
               </div>
-            </div>
-            <div class="dueDate" v-if="taskToEdit.dueDate" @click="selectComponent('calendar-cmp')">
+            </div> -->
+            <div class="dueDate" v-if="task.dueDate" @click="selectComponent('calendar-cmp')">
               <h2>Due date</h2>
               <span>
-                {{ formatDate(taskToEdit.dueDate) }}
+                {{ formatDate(task.dueDate) }}
                 <icon-base iconName="chevron-down" />
               </span>
             </div>
           </div>
-          <description-details :taskToEdit="taskToEdit" @save="saveDesc" />
-          <attachment-details :attachments="taskToEdit.attachments" />
+          <description-details :task="task" @save="saveDesc" />
+          <attachment-details :attachments="task.attachments" />
           <checklist-details
-            v-for="checklist in taskToEdit.checklist"
+            v-for="checklist in task.checklists"
             :key="checklist.id"
             :checklist="checklist"
             @save="updateChecklist"
             @remove="removeChecklist"
           />
           <activity-details
-            :task="taskToEdit"
+            :task="task"
             :user="loggedinUser"
             @save="saveComment"
             @edit="editComment"
@@ -86,24 +86,22 @@
           <component
             :is="cmp"
             :board="board"
-            :task="taskToEdit"
+            :task="task"
             :groups="groups"
-            :date="taskToEdit.dueDate"
-            @saveDate="saveDate"
-            @removeDate="removeDate"
             @addLabel="addLabel"
             @updateBoardLabel="updateBoardLabel"
             @deleteBoardLabel="deleteBoardLabel"
             @createBoardLabel="createBoardLabel"
             @close="hideComponent"
             @addMember="addMember"
-            @saveAttachment="saveAttachment"
             @setCoverColor="setCoverColor"
             @setCoverImg="setCoverImg"
             @setCoverStyle="setCoverStyle"
             @addChecklist="addChecklist"
-          />
-        </div>
+            @updateTask="updateTask"
+            @saveAttachment="saveAttachment"
+            />
+          </div>
       </div>
     </div>
     <loader v-else color="white" />
@@ -111,7 +109,9 @@
 </template>
 
 <script>
+import { useBoardStore } from '../store/board.store';
 import { socketService } from '../services/socket.service';
+import { utilService } from '../services/util.service';
 import { taskService } from '../services/task.service';
 import { designService } from '../services/design.services';
 import { boardService } from '../services/board.service';
@@ -134,13 +134,17 @@ import copyCmp from './dynamic-components/copy-cmp.vue';
 import loader from './loader.vue';
 
 export default {
+  setup() {
+    const boardStore = useBoardStore();
+    return { boardStore };
+  },
   props: {
-    taskId: {
-      type: String,
+    task: {
+      type: Object,
       required: true,
     },
-    groupId: {
-      type: String,
+    group: {
+      type: Object,
       required: true,
     },
     boardId: {
@@ -150,35 +154,42 @@ export default {
   },
   data() {
     return {
-      taskToEdit: null,
+      // task: null,
       loggedinUser: null,
-      group: null,
+      // group: null,
       savedDate: null,
       cmp: null,
     };
   },
   async created() {
-    const user = await this.$store.getters.user;
-    this.loggedinUser = user;
-    const res = await taskService.getById(this.taskId, this.groupId, this.boardId);
-    this.taskToEdit = { ...res.task };
-    this.group = { ...res.group };
-    socketService.emit('details', this.taskToEdit.id);
-    socketService.on('update', async (board) => {
-      const res = await taskService.getById(this.taskId, this.groupId, this.boardId);
-      this.taskToEdit = { ...res.task };
-    });
+    console.log(this.group);
+
+    // const user = await this.$store.getters.user;
+    // this.loggedinUser = user;
+    // const res = await taskService.getById(this.taskId, this.groupId, this.boardId);
+    // this.taskToEdit = { ...res.task };
+    // this.group = { ...res.group };
+    // socketService.emit('details', this.taskToEdit.id);
+    // socketService.on('update', async (board) => {
+    // const res = await taskService.getById(this.taskId, this.groupId, this.boardId);
+    // this.taskToEdit = { ...res.task };
+    // });
   },
   methods: {
+    updateTask(task) {
+      utilService.spliceItem(task.id, this.group.tasks, task);
+      utilService.spliceItem(this.group.id, this.board.groups, this.group);
+      this.boardStore.updateBoard(this.board);
+    },
     doUpdateTask() {
-      this.$store.dispatch({
-        type: 'updateTask',
-        taskPartial: JSON.parse(JSON.stringify(this.taskToEdit)),
-        groupId: this.groupId,
-      });
+      // this.$store.dispatch({
+      //   type: 'updateTask',
+      //   taskPartial: JSON.parse(JSON.stringify(this.taskToEdit)),
+      //   groupId: this.groupId,
+      // });
     },
     handleTitleChange(value) {
-      this.taskToEdit.title = value;
+      this.task.title = value;
     },
     saveTitle() {
       this.doUpdateTask();
@@ -188,9 +199,9 @@ export default {
       activity.type = type;
       activity.action = action;
       activity.byMember = this.loggedinUser;
-      activity.task = { id: this.taskToEdit.id, title: this.taskToEdit.title };
-      this.taskToEdit.activities.unshift(activity);
-      socketService.emit('loading', { ...this.taskToEdit });
+      activity.task = { id: this.task.id, title: this.task.title };
+      this.task.activities.unshift(activity);
+      socketService.emit('loading', { ...this.task });
 
       this.doUpdateTask();
       this.$store.dispatch({
@@ -198,50 +209,38 @@ export default {
       });
     },
     removeChecklist(checkId) {
-      const idx = this.taskToEdit.checklist.findIndex((list) => list.id === checkId);
-      const title = this.taskToEdit.checklist[idx].title;
-      this.taskToEdit.checklist.splice(idx, 1);
-      socketService.emit('loading', { ...this.taskToEdit });
+      const idx = this.task.checklist.findIndex((list) => list.id === checkId);
+      const title = this.task.checklist[idx].title;
+      this.task.checklist.splice(idx, 1);
+      socketService.emit('loading', { ...this.task });
       this.doUpdateTask();
       this.addActivity({ type: 'activity-cmp', action: `removed ${title} from this card` });
     },
     updateChecklist(checklist) {
-      const idx = this.taskToEdit.checklist.findIndex((list) => list.id === checklist.id);
-      this.taskToEdit.checklist.splice(idx, 1, checklist);
-      socketService.emit('loading', { ...this.taskToEdit });
+      const idx = this.task.checklist.findIndex((list) => list.id === checklist.id);
+      this.task.checklist.splice(idx, 1, checklist);
+      socketService.emit('loading', { ...this.task });
       this.doUpdateTask();
       this.addActivity({ type: 'activity-cmp', action: `updated ${checklist.title} in this card` });
     },
     async addChecklist(newChecklist) {
-      this.taskToEdit.checklist.unshift(newChecklist);
+      this.task.checklist.unshift(newChecklist);
       await this.doUpdateTask();
-      // socketService.emit('loading', { ...this.taskToEdit });
+      // socketService.emit('loading', { ...this.task });
       this.addActivity({ type: 'activity-cmp', action: `added ${newChecklist.title} to this card` });
       this.hideComponent();
     },
-    saveAttachment(attachment) {
-      const attachments = [attachment, ...this.taskToEdit.attachments];
-      this.$store.dispatch({
-        type: 'updateTask',
-        taskPartial: { id: this.taskId, attachments },
-        groupId: this.groupId,
-      });
-      this.taskToEdit.attachments = attachments;
-      const title = attachment.name ? attachment.name : attachment.url;
-      socketService.emit('loading', { ...this.taskToEdit });
-      this.addActivity({ type: 'activity-cmp', action: `attached ${title} to this card` });
-    },
     deleteComment(commentId) {
-      const comments = this.taskToEdit.comments.filter((com) => com.id !== commentId);
+      const comments = this.task.comments.filter((com) => com.id !== commentId);
       this.$store.dispatch({
         type: 'updateTask',
-        taskPartial: { id: this.taskId, comments },
-        groupId: this.groupId,
+        taskPartial: { id: this.task, comments },
+        groupId: this.group,
       });
-      this.taskToEdit.comments = comments;
+      this.task.comments = comments;
     },
     editComment(comment) {
-      const comments = this.taskToEdit.comments.map((com) => {
+      const comments = this.task.comments.map((com) => {
         if (com.id === comment.id) {
           com = comment;
           return com;
@@ -250,21 +249,21 @@ export default {
       });
       this.$store.dispatch({
         type: 'updateTask',
-        taskPartial: { id: this.taskId, comments },
-        groupId: this.groupId,
+        taskPartial: { id: this.task, comments },
+        groupId: this.group,
       });
-      this.taskToEdit.comments = comments;
+      this.task.comments = comments;
       this.addActivity({ type: 'activity-cmp', action: `edited a comment from this card` });
     },
     async saveComment(comment, taskId) {
       if (!taskId) {
-        taskId = this.taskToEdit.id;
+        taskId = this.task.id;
       }
-      this.taskToEdit.comments.unshift(comment);
+      this.task.comments.unshift(comment);
       await this.$store.dispatch({
         type: 'updateTask',
-        taskPartial: { id: taskId, comments: [...this.taskToEdit.comments] },
-        groupId: this.groupId,
+        taskPartial: { id: taskId, comments: [...this.task.comments] },
+        groupId: this.group,
       });
       this.addActivity({ type: 'activity-cmp', action: `added comment from this card` });
     },
@@ -272,20 +271,21 @@ export default {
       return new Date(dateString).toDateString();
     },
     async joinTask() {
-      this.taskToEdit.members.unshift(this.loggedinUser);
-      socketService.emit('loading', { ...this.taskToEdit });
+      this.task.members.unshift(this.loggedinUser);
+      socketService.emit('loading', { ...this.task });
       this.doUpdateTask();
     },
     saveDesc(task) {
-      this.taskToEdit = task;
-      socketService.emit('loading', { ...this.taskToEdit });
+      this.task = task;
+      socketService.emit('loading', { ...this.task });
       this.$store.dispatch({
         type: 'updateTask',
         taskPartial: task,
-        groupId: this.groupId,
+        groupId: this.group,
       });
     },
     selectComponent(type) {
+      // console.log(this.task)
       if (this.cmp === type) {
         this.hideComponent();
       } else {
@@ -299,70 +299,39 @@ export default {
       this.$emit('closeTaskDetails');
     },
     setCoverColor(color) {
-      this.taskToEdit.style.cover.type = 'color';
-      this.taskToEdit.style.cover.color = color;
-      this.taskToEdit.style.cover.imgUrl = '';
-      if (!this.taskToEdit.style.cover.style && color) this.taskToEdit.style.cover.style = 'solid';
-      socketService.emit('loading', { ...this.taskToEdit });
+      this.task.style.cover.type = 'color';
+      this.task.style.cover.color = color;
+      this.task.style.cover.imgUrl = '';
+      if (!this.task.style.cover.style && color) this.task.style.cover.style = 'solid';
+      socketService.emit('loading', { ...this.task });
       this.doUpdateTask();
     },
     async setCoverImg(imgUrl) {
-      this.taskToEdit.style.cover.type = 'img';
-      this.taskToEdit.style.cover.imgUrl = imgUrl;
-      if (imgUrl)
-        this.taskToEdit.style.cover.color = (await designService.getAvgColor(this.taskToEdit.style.cover.imgUrl)).hex;
-      else this.taskToEdit.style.cover.color = '';
-      if (!this.taskToEdit.style.cover.style && imgUrl) this.taskToEdit.style.cover.style = 'solid';
-      socketService.emit('loading', { ...this.taskToEdit });
+      this.task.style.cover.type = 'img';
+      this.task.style.cover.imgUrl = imgUrl;
+      if (imgUrl) this.task.style.cover.color = (await designService.getAvgColor(this.task.style.cover.imgUrl)).hex;
+      else this.task.style.cover.color = '';
+      if (!this.task.style.cover.style && imgUrl) this.task.style.cover.style = 'solid';
+      socketService.emit('loading', { ...this.task });
       this.doUpdateTask();
     },
     setCoverStyle(coverStyle) {
-      this.taskToEdit.style.cover.style = coverStyle;
-      socketService.emit('loading', { ...this.taskToEdit });
+      this.task.style.cover.style = coverStyle;
+      socketService.emit('loading', { ...this.task });
       this.doUpdateTask();
     },
-    async saveDate(date) {
-      console.log(date);
-      this.hideComponent();
-      this.taskToEdit.dueDate = date;
-      socketService.emit('loading', { ...this.taskToEdit });
-      try {
-        this.$store.dispatch({
-          type: 'updateTask',
-          taskPartial: this.taskToEdit,
-          groupId: this.groupId,
-        });
-      } catch (err) {
-        console.log(err);
-      }
-      const title = this.formatDate(this.taskToEdit.dueDate);
-      this.addActivity({ type: 'activity-cmp', action: `set this card to be due ${title}` });
-    },
+    
     addMember(member) {
-      const idx = this.taskToEdit.members.findIndex((mmbr) => mmbr._id === member._id);
+      const idx = this.task.members.findIndex((mmbr) => mmbr._id === member._id);
       if (idx === -1) {
-        this.taskToEdit.members.unshift(member);
+        this.task.members.unshift(member);
       } else {
-        this.taskToEdit.members.splice(idx, 1);
+        this.task.members.splice(idx, 1);
       }
-      socketService.emit('loading', { ...this.taskToEdit });
+      socketService.emit('loading', { ...this.task });
       this.doUpdateTask();
     },
-    async removeDate() {
-      this.hideComponent();
-      this.taskToEdit.dueDate = null;
-      try {
-        this.$store.dispatch({
-          type: 'updateTask',
-          taskPartial: this.taskToEdit,
-          groupId: this.groupId,
-        });
-      } catch (err) {
-        console.log(err);
-      }
-      socketService.emit('loading', { ...this.taskToEdit });
-      this.addActivity({ type: 'activity-cmp', action: `removed the due date from this card` });
-    },
+   
     updateBoardLabel(label) {
       this.$store.dispatch({
         type: 'updateBoardLabel',
@@ -386,47 +355,91 @@ export default {
     },
     async addLabel(label) {
       const labelId = label.id;
-      if (!this.taskToEdit.labelIds) {
-        this.taskToEdit.labelIds = [labelId];
+      if (!this.task.labelIds) {
+        this.task.labelIds = [labelId];
       } else {
-        if (this.taskToEdit.labelIds.includes(labelId)) {
-          this.taskToEdit.labelIds = this.taskToEdit.labelIds.filter((id) => id !== labelId);
+        if (this.task.labelIds.includes(labelId)) {
+          this.task.labelIds = this.task.labelIds.filter((id) => id !== labelId);
         } else {
-          this.taskToEdit.labelIds.unshift(labelId);
+          this.task.labelIds.unshift(labelId);
         }
       }
-      socketService.emit('loading', { ...this.taskToEdit });
+      socketService.emit('loading', { ...this.task });
       await this.doUpdateTask();
     },
     removeTask() {
-      this.$store.dispatch({ type: 'removeTask', taskId: this.taskId, groupId: this.groupId });
+      this.$store.dispatch({ type: 'removeTask', taskId: this.task, groupId: this.group });
       this.closeTaskDetails();
+    },
+    async removeDate() {
+      // this.hideComponent();
+      // this.task.dueDate = null;
+      // try {
+      //   this.$store.dispatch({
+      //     type: 'updateTask',
+      //     taskPartial: this.task,
+      //     groupId: this.group,
+      //   });
+      // } catch (err) {
+      //   console.log(err);
+      // }
+      // socketService.emit('loading', { ...this.task });
+      // this.addActivity({ type: 'activity-cmp', action: `removed the due date from this card` });
+    },
+    async saveDate(date) {
+      // console.log(date);
+      // this.hideComponent();
+      // this.task.dueDate = date;
+      // socketService.emit('loading', { ...this.task });
+      // try {
+      //   this.$store.dispatch({
+      //     type: 'updateTask',
+      //     taskPartial: this.task,
+      //     groupId: this.group,
+      //   });
+      // } catch (err) {
+      //   console.log(err);
+      // }
+      // const title = this.formatDate(this.task.dueDate);
+      // this.addActivity({ type: 'activity-cmp', action: `set this card to be due ${title}` });
+    },
+    saveAttachment(attachment) {
+      // const attachments = [attachment, ...this.task.attachments];
+      // this.$store.dispatch({
+      //   type: 'updateTask',
+      //   taskPartial: { id: this.task, attachments },
+      //   groupId: this.group,
+      // });
+      // this.task.attachments = attachments;
+      // const title = attachment.name ? attachment.name : attachment.url;
+      // socketService.emit('loading', { ...this.task });
+      // this.addActivity({ type: 'activity-cmp', action: `attached ${title} to this card` });
     },
   },
   computed: {
     labels() {
-      return this.$store.getters.boardLabels.filter((label) => {
-        if (!this.taskToEdit.labelIds) return false;
-        return this.taskToEdit.labelIds.includes(label.id);
-      });
-    },
-    board() {
-      return this.$store.getters.board;
-    },
-    isMember() {
-      return this.taskToEdit.members.some((member) => member._id === this.loggedinUser._id);
-    },
-    coverStyle() {
-      if (this.taskToEdit.style.cover.type === 'color') {
-        return `background-color: ${this.taskToEdit.style.cover.color}`;
-      }
-      if (this.taskToEdit.style.cover.type === 'img') {
-        return `background-image: url(${this.taskToEdit.style.cover.imgUrl}); max-height: 160px `;
+      // return this.$store.getters.boardLabels.filter((label) => {
+        //   if (!this.task.labelIds) return false;
+        //   return this.task.labelIds.includes(label.id);
+        // });
+      },
+      board() {
+        return this.boardStore.currBoard;
+      },
+      isMember() {
+        return this.task.members.some((member) => member._id === this.loggedinUser._id);
+      },
+      coverStyle() {
+        if (this.task.style.cover.type === 'color') {
+          return `background-color: ${this.task.style.cover.color}`;
+        }
+      if (this.task.style.cover.type === 'img') {
+        return `background-image: url(${this.task.style.cover.imgUrl}); max-height: 160px `;
       }
       return '';
     },
     groups() {
-      return this.$store.getters.groups;
+      // return this.$store.getters.groups;
     },
   },
   components: {

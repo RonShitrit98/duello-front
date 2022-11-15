@@ -6,7 +6,7 @@
         <icon-base iconName="x" />
       </button>
     </header>
-    <v-date-picker class="calendar" v-model="selectedDate" />
+    <v-date-picker class="calendar" v-model="task.dueDate" />
     <button class="save-btn" @click="saveDate">Save</button>
     <button class="remove-btn" @click="removeDate">Remove</button>
   </section>
@@ -16,23 +16,21 @@ import { DatePicker } from 'v-calendar';
 import iconBase from '../icon-base.vue';
 export default {
   props: {
-    date: {
+    task: {
       type: String,
       required: true,
     },
   },
-  data() {
-    return {
-      selectedDate: this.date ?? new Date().getTime(),
-    };
-  },
   methods: {
     saveDate() {
-      this.$emit('saveDate', this.selectedDate);
+      this.$emit('updateTask', this.task);
+      this.close();
     },
 
     removeDate() {
-      this.$emit('removeDate');
+      this.task.dueDate = null;
+      this.$emit('updateTask', this.task);
+      this.close();
     },
     close() {
       this.$emit('close');

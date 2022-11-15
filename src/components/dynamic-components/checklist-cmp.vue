@@ -8,43 +8,55 @@
     <div class="container">
       <form @submit.prevent="addChecklist" class="add-checklist">
         <label for="title" class="input-label">Title</label>
-        <input type="text" id="title" v-model="title" ref="myInput" />
+        <input type="text" id="title" v-model="newChecklist.title" ref="myInput" />
 
         <label class="input-label">Copy items from…</label>
 
-        <select v-model="selectedChecklist">
+        <!-- <select v-model="selectedChecklist">
           <optgroup>
             <option value="">(none)</option>
           </optgroup>
           <optgroup v-for="check in checklists" :key="check.id" :label="check.taskTitle">
             <option :value="check">{{ check.title }}</option>
           </optgroup>
-        </select>
+        </select> -->
         <button @mousedown="toggleFocus" @mouseup="toggleFocus">Add</button>
       </form>
     </div>
   </section>
 </template>
 <script>
+import { taskService } from '../../services/task.service';
 import { utilService } from '../../services/util.service';
 import iconBase from '../icon-base.vue';
 
 export default {
+  props: {
+    task: {
+      type: Object,
+      required: true,
+    },
+  },
   data() {
     return {
-      selectedChecklist: null,
-      title: 'Checklist',
+      // selectedChecklist: null,
+      // title: 'Checklist',
+      newChecklist: taskService.getEmptyChecklist(),
     };
   },
   created() {
-    this.$store.dispatch({ type: 'getChecklists' });
+    // this.$store.dispatch({ type: 'getChecklists' });
   },
   methods: {
     addChecklist() {
-      if (!this.title) return;
-      const todos = this.selectedChecklist === null ? [] : this.selectedChecklist.todos;
-      this.$emit('addChecklist', { id: utilService.makeId(), title: this.title, todos });
-      this.selectedChecklist = null;
+      if (!this.newChecklist.title) return;
+      this.task.checklists.push(this.newChecklist);
+      this.close();
+      this.newChecklist = taskService.getEmptyChecklist()
+      this.emit('updateTask', this.task);
+      // const todos = this.selectedChecklist === null ? [] : this.selectedChecklist.todos;
+      // this.$emit('addChecklist', { id: utilService.makeId(), title: this.title, todos });
+      // this.selectedChecklist = null;
     },
     toggleFocus(ev) {
       if (ev.type === 'mousedown' && !this.title) {
@@ -60,19 +72,19 @@ export default {
     },
   },
   watch: {
-    selectedChecklist() {
-      if (!this.selectedChecklist) {
-        this.title = 'Checklist';
-      } else {
-        this.title = this.selectedChecklist.title;
-      }
-    },
+    // selectedChecklist() {
+    //   if (!this.selectedChecklist) {
+    //     this.title = 'Checklist';
+    //   } else {
+    //     this.title = this.selectedChecklist.title;
+    //   }
+    // },
   },
-  computed: {
-    checklists() {
-      return this.$store.getters.checklists;
-    },
-  },
+  // computed: {
+  //   checklists() {
+  //     // return this.$store.getters.checklists;
+  //   },
+  // },
   components: { iconBase },
 };
 </script>

@@ -102,7 +102,7 @@
 <script>
 import iconBase from '../icon-base.vue';
 import { designService } from '../../services/design.services.js';
-import { uploadImg } from '../../services/imgUpload.service.js';
+import { imgService } from '../../services/imgUpload.service.js';
 
 export default {
   props: {
@@ -202,19 +202,19 @@ export default {
       this.imgs = imgs;
     },
     async onUploadImg(ev) {
-      this.loading = true;
-      const res = await uploadImg(ev);
-      this.loading = false;
-      const { url, original_filename, original_extension, format } = res;
-      const attachment = {
-        type: 'image',
-        url,
-        fileName: `${original_filename}.${original_extension ?? format}`,
-        created: new Date().getTime(),
-      };
-      this.$emit('saveAttachment', attachment);
-      this.setCoverImg(attachment.url);
-      console.log(attachment);
+      // this.loading = true;
+      // const res = await uploadImg(ev);
+      // this.loading = false;
+      // const { url, original_filename, original_extension, format } = res;
+      // const attachment = {
+      //   type: 'image',
+      //   url,
+      //   fileName: `${original_filename}.${original_extension ?? format}`,
+      //   created: new Date().getTime(),
+      // };
+      // this.$emit('saveAttachment', attachment);
+      // this.setCoverImg(attachment.url);
+      // console.log(attachment);
     },
   },
   async created() {

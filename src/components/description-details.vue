@@ -39,7 +39,7 @@ import resizableTextarea from './resizable-textarea.vue';
 export default {
   components: { iconBase, resizableTextarea },
   props: {
-    taskToEdit: {
+    task: {
       type: Object,
       required: true,
     },
@@ -47,7 +47,7 @@ export default {
   data() {
     return {
       addDescription: false,
-      task: this.taskToEdit,
+      // task: this.taskToEdit,
     };
   },
   created() {
