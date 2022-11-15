@@ -14,7 +14,7 @@
               class="board-title full-star"
               :style="
                 board.style.type === 'img'
-                  ? `background-image: url(${board.style.backgroundImg})`
+                  ? `background-image: url(${board.style.backgroundImg.thumb})`
                   : `background-color:${board.style.color}`
               "
             >
@@ -47,7 +47,7 @@
               class="board-title"
               :style="
                 board.style.type === 'img'
-                  ? `background-image: url(${board.style.backgroundImg})`
+                  ? `background-image: url(${board.style.backgroundImg.thumb})`
                   : `background-color:${board.style.color}`
               "
             >

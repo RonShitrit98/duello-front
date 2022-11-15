@@ -43,10 +43,10 @@
     />
     <task-quick-edit
       v-if="quickEditData !== null"
-      :taskId="quickEditData.task.id"
+      :task="quickEditData.task"
       :position="quickEditData.position"
       :width="quickEditData.width"
-      :groupId="quickEditData.group.id"
+      :group="quickEditData.group"
       @close="closeQuickEdit"
       @openDetails="openModal(quickEditData.task.id, quickEditData.group.id)"
       @updateTask="updateTask"
@@ -87,7 +87,7 @@ export default {
     };
   },
   async created() {
-    const board = await this.boardStore.loadBoard(this.$route.params.boardId);
+    await this.boardStore.loadBoard(this.$route.params.boardId);
     // const board = await this.$store.dispatch({
     //   type: 'loadBoard',
     //   boardId: this.$route.params.boardId,
@@ -112,24 +112,18 @@ export default {
   },
   methods: {
     async onDragTask(group) {
-      // this.board = JSON.parse(JSON.stringify(this.$store.getters.board));
-      const idx = this.board.groups.findIndex((grp) => grp.id === group.id);
-      this.board.groups.splice(idx, 1, group);
-      await this.boardStore.drag(this.board);
-      // await this.$store.dispatch({ type: 'drag', board: JSON.parse(JSON.stringify(this.board)) });
+      const updatedGroups = utilService.spliceItem(group.id, this.board.groups, group);
+      this.board.group = updatedGroups;
+      await this.boardStore.updateBoard(this.board);
     },
     setDraggedTask(task) {
       this.draggingCard = task;
     },
     async onDrop(dropResult) {
-      // console.log(dropResult);
       dropResult.payload = this.getChildPayload(dropResult.removedIndex);
       const res = utilService.applyDrag(this.board.groups, dropResult);
-      // const board = { ...this.board };
       this.board.groups = res;
       await this.boardStore.updateBoard(this.board);
-      // this.board = await this.$store.dispatch({ type: 'drag', board });
-      // this.board = this.$store.getters.board;
     },
     getChildPayload(index) {
       return this.board.groups[index];
@@ -146,12 +140,9 @@ export default {
       this.groupId = groupId;
       this.quickEditData = null;
     },
-    addGroup(title) {
-      // this.$store.dispatch({
-      //   type: 'addGroup',
-      //   title: title,
-      //   boardId: this.board._id,
-      // });
+    addGroup(group) {
+      this.board.groups.push(group);
+      this.boardStore.updateBoard(this.board);
     },
     removeGroup(groupId) {
       // this.$store.dispatch({ type: 'removeGroup', groupId });
@@ -163,6 +154,7 @@ export default {
       // this.$store.dispatch({ type: 'removeTask', taskId, groupId });
     },
     updateTask(taskPartial, groupId) {
+      // console.log(tak)
       // this.$store.dispatch({ type: 'updateTask', taskPartial, groupId });
     },
     addTask(task, groupId, boardId) {
@@ -177,7 +169,7 @@ export default {
     },
     bcg() {
       const style = this.boardStore.style;
-      if (style.type === 'img') return `background-image: url(${style.backgroundImg})`;
+      if (style.type === 'img') return `background-image: url(${style.backgroundImg.url})`;
       else return `background-color: ${style.color}`;
     },
     user() {

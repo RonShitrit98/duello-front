@@ -1,8 +1,8 @@
 <template>
   <section class="task-preview" v-if="task">
-    <!-- <div v-if="isCover" class="task-prev-cover" :style="coverStyle">
+    <div v-if="isCover" class="task-prev-cover" :style="coverStyle">
       <img class="cover-img" v-if="task.style.cover.type === 'img'" :src="task.style.cover.imgUrl" />
-    </div>-->
+    </div>
     <div v-if="!isCoverBcg" class="task-labels">
       <div
         class="task-label"
@@ -15,13 +15,8 @@
         <span :class="labelsExpanded ? 'show' : 'hide'">{{ label.title }}&nbsp;</span>
       </div>
     </div>
-    <resizable-textarea
-      class="isEditing"
-      :value="taskToEditPartial.title"
-      @valueChange="saveEdit"
-      v-if="canEditTitle"
-      :autofocus="true"
-    />
+    <textarea class="isEditing" v-model="task.title"  v-if="canEditTitle" :autofocus="true"></textarea>
+    <!-- @keyup="saveEdit" -->
     <resizable-textarea v-else :value="taskTitle" :disabled="true" />
     <div v-if="!isCoverBcg" class="task-extras">
       <div class="left">
@@ -110,10 +105,11 @@ export default {
       e.stopPropagation();
       this.$emit('toggleLabelsExpanded');
     },
-    async saveEdit(txt) {
-      this.taskToEditPartial.title = txt;
-      this.$emit('editTask', this.taskToEditPartial);
-    },
+    // async saveEdit() {
+    //   console.log(this.task)
+    //   // this.taskToEditPartial.title = txt;
+    //   this.$emit('editTask', this.task);
+    // },
   },
   computed: {
     numberOfAttachments() {

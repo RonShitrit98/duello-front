@@ -11,7 +11,7 @@
           ref="input"
           type="text"
           placeholder="Enter list title..."
-          v-model="title"
+          v-model="emptyGroup.title"
           @blur="addedGroup = !addedGroup"
         />
       </div>
@@ -26,25 +26,25 @@
 </template>
 
 <script>
+import { groupService } from '../services/group.service';
 import iconBase from './icon-base.vue';
 export default {
   data() {
     return {
       addedGroup: false,
-      title: '',
+      emptyGroup: groupService.getEmptyGroup(),
     };
   },
   methods: {
     addGroup(e) {
-      if (!this.title) {
+      if (!this.emptyGroup.title) {
         e.preventDefault();
         e.stopPropagation();
         return;
       }
-
-      this.$emit('addGroup', this.title);
-
-      this.title = '';
+      this.$emit('addGroup', this.emptyGroup);
+      this.emptyGroup = groupService.getEmptyGroup();
+      // this.title = '';
     },
     showForm() {
       this.title = '';

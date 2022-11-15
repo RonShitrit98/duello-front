@@ -58,6 +58,7 @@ async function addGroup(title, boardId) {
   return group;
 }
 
+
 async function updateGroup(newGroup, boardId) {
   const board = await _getBoard(boardId);
   const groupIdx = board.groups.findIndex((group) => group.id === newGroup.id);

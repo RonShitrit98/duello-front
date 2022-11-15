@@ -208,9 +208,10 @@ export default {
     removeTask(taskId, groupId) {
       this.$emit('removeTask', taskId, groupId);
     },
-    updateTask(taskPartial) {
-      const groupId = this.group.id;
-      this.$emit('updateTask', taskPartial, groupId);
+    updateTask(task) {
+      console.log(task)
+      // const groupId = this.group.id;
+      // this.$emit('updateTask', taskPartial, groupId);
     },
     createTask() {
       this.closeEditModal();

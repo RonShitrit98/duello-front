@@ -26,9 +26,9 @@
           </div>
           <button class="name-btn">Sprint</button> |
           <section class="members">
-            <div class="member" v-for="member in board.members" :key="member._id">
+            <!-- <div class="member" v-for="member in board.members" :key="member._id">
               <img :src="member.imgUrl" referrerpolicy="no-referrer" alt="member" />
-            </div>
+            </div> -->
             <button @click="toggleMembersModal">Invite</button>
           </section>
         </div>
@@ -67,7 +67,7 @@
           <img :src="member.imgUrl" referrerpolicy="no-referrer" />
           <div class="user-details">
             <h4>{{ member.fullname }}</h4>
-          <h5>{{ member.username }}</h5>
+            <h5>{{ member.username }}</h5>
           </div>
         </div>
         <div v-else>
@@ -79,11 +79,18 @@
 </template>
 
 <script>
+import { useBoardStore } from '../store/board.store';
 import iconBase from '../components/icon-base.vue';
 import boardMenu from './board-menu.vue';
 
 export default {
   components: { boardMenu },
+  setup() {
+    const boardStore = useBoardStore();
+    return {
+      boardStore,
+    };
+  },
   data() {
     return {
       isEditing: false,
@@ -106,23 +113,23 @@ export default {
       this.isMenuOpen = !this.isMenuOpen;
     },
     changeTitle() {
-      this.$store.dispatch({ type: 'updateBoard', board: this.board });
+      // this.$store.dispatch({ type: 'updateBoard', board: this.board });
     },
     toggleFavorites() {
       this.board.isStarred = !this.board.isStarred;
-      this.$store.dispatch({ type: 'updateBoard', board: this.board });
+      // this.$store.dispatch({ type: 'updateBoard', board: this.board });
     },
     toggleMembersModal() {
       this.isMemberModal = !this.isMemberModal;
     },
     async searchMembers() {
-      const members = await this.$store.dispatch({ type: 'searchMembers', searchVal: this.userSearch });
+      // const members = await this.$store.dispatch({ type: 'searchMembers', searchVal: this.userSearch });
       this.membersRes = members;
     },
     addMember(member) {
       if (this.board.members.some((mmbr) => mmbr._id === member._id)) return;
       else this.board.members.push(member);
-      this.$store.dispatch({ type: 'updateBoard', board: this.board });
+      // this.$store.dispatch({ type: 'updateBoard', board: this.board });
     },
   },
   computed: {
@@ -134,11 +141,11 @@ export default {
       return this.board.title.length;
     },
     board() {
-      return JSON.parse(JSON.stringify(this.$store.getters.board));
+      return this.boardStore.currBoard;
+      // return JSON.parse(JSON.stringify(this.$store.getters.board));
     },
     txtClr() {
-      const isDark = this.$store.getters.isDark;
-      if (!isDark) return 'dark-bcg';
+      if (!this.boardStore.style.isDark) return 'dark-bcg';
     },
   },
   components: {

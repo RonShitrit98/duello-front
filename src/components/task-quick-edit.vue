@@ -20,8 +20,8 @@
           ]"
           :task="this.task"
           :canEditTitle="true"
-          @editTask="updateTask"
         ></task-preview>
+        <!-- @editTask="updateTask" -->
         <span class="bcg-helper" v-if="task.style.cover.style === 'background'"></span>
       </div>
       <div class="edit-menu">
@@ -76,7 +76,7 @@
 </template>
 <script>
 import { boardService } from '../services/board.service';
-
+import { useBoardStore } from '../store/board.store';
 import iconBase from './icon-base.vue';
 import taskPreview from '../components/task-preview.vue';
 import labelCmp from '../components/dynamic-components/label-cmp.vue';
@@ -84,15 +84,20 @@ import memberCmp from '../components/dynamic-components/member-cmp.vue';
 import coverCmp from '../components/dynamic-components/cover-cmp.vue';
 import calendarCmp from '../components/dynamic-components/calendar-cmp.vue';
 import { designService } from '../services/design.services';
+import { utilService } from '../services/util.service';
 
 export default {
+  setup() {
+    const boardStore = useBoardStore();
+    return { boardStore };
+  },
   props: {
-    groupId: {
-      type: String,
+    group: {
+      type: Object,
       required: true,
     },
-    taskId: {
-      type: String,
+    task: {
+      type: Object,
       required: true,
     },
     position: {
@@ -130,7 +135,7 @@ export default {
       this.$store.dispatch({
         type: 'updateTask',
         taskPartial: JSON.parse(JSON.stringify(this.taskToEdit)),
-        groupId: this.groupId,
+        groupId: this.group,
       });
     },
     updateBoardLabel(label) {
@@ -163,7 +168,7 @@ export default {
       this.$store.dispatch({
         type: 'updateTask',
         taskPartial,
-        groupId: this.groupId,
+        groupId: this.group,
       });
     },
     async setCoverImg(imgUrl) {
@@ -176,7 +181,7 @@ export default {
       this.$store.dispatch({
         type: 'updateTask',
         taskPartial,
-        groupId: this.groupId,
+        groupId: this.group,
       });
     },
     setCoverStyle(coverStyle) {
@@ -185,7 +190,7 @@ export default {
       this.$store.dispatch({
         type: 'updateTask',
         taskPartial,
-        groupId: this.groupId,
+        groupId: this.group,
       });
     },
     addMember(member) {
@@ -202,7 +207,7 @@ export default {
           id: this.taskToEdit.id,
           members,
         },
-        groupId: this.groupId,
+        groupId: this.group,
       });
     },
     async removeDate() {
@@ -212,7 +217,7 @@ export default {
         this.$store.dispatch({
           type: 'updateTask',
           taskPartial: this.taskToEdit,
-          groupId: this.groupId,
+          groupId: this.group,
         });
       } catch (err) {
         console.log(err);
@@ -231,7 +236,7 @@ export default {
           id: this.taskToEdit.id,
           activities: [activity, ...this.taskToEdit.activities],
         },
-        groupId: this.groupId,
+        groupId: this.group,
       });
       // this.$store.dispatch({
       //   type: 'getActivities',
@@ -244,7 +249,7 @@ export default {
         this.$store.dispatch({
           type: 'updateTask',
           taskPartial: this.taskToEdit,
-          groupId: this.groupId,
+          groupId: this.group,
         });
       } catch (err) {
         console.log(err);
@@ -265,16 +270,18 @@ export default {
       this.cmp = null;
     },
     save() {
-      if (this.taskPartial !== null) {
-        this.$store.dispatch({ type: 'updateTask', taskPartial: this.taskPartial, groupId: this.groupId });
-      }
+      utilService.spliceItem(this.task.id, this.group.tasks, this.task);
+      utilService.spliceItem(this.group.id, this.board.groups, this.group);
+      this.boardStore.updateBoard(this.board);
       this.close();
     },
-    updateTask(taskPartial) {
-      this.taskPartial = taskPartial;
+    updateTask() {
+      // this.boardStore.updateBoard;
+      // // console.log(taskPartial)
+      // // this.taskPartial = taskPartial;
     },
     async archive() {
-      await this.$store.dispatch({ type: 'removeTask', taskId: this.taskId, groupId: this.groupId });
+      await this.$store.dispatch({ type: 'removeTask', taskId: this.task, groupId: this.group });
       this.$emit('close');
     },
   },
@@ -296,13 +303,7 @@ export default {
       return { left: this.position.left + 'px', top: this.position.top + 'px', width: this.width + 'px' };
     },
     board() {
-      return this.$store.getters.board;
-    },
-    task() {
-      const group = this.$store.getters.groups.find((group) => group.id === this.groupId);
-      return group.tasks.find((task) => task.id === this.taskId);
-      // console.log(this.group.tasks.find((task) => task.id === this.taskId));
-      // return this.group.tasks.find((task) => task.id === this.taskId);
+      return this.boardStore.currBoard;
     },
   },
 };

@@ -50,6 +50,7 @@ export const useBoardStore = defineStore('board', {
       try {
         const boards = await boardService.query();
         this.boards = boards;
+        console.log(boards);
       } catch (err) {
         console.log(err);
       }
@@ -75,7 +76,7 @@ export const useBoardStore = defineStore('board', {
     },
     async drag(board) {
       try {
-        console.log(board)
+        console.log(board);
         // commit({ type: 'setBoard', board });
         // setTimeout(async () => {
         //   await boardService.updateBoard(board);
