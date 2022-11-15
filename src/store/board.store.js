@@ -57,8 +57,8 @@ export const useBoardStore = defineStore('board', {
     },
     async updateBoard(board) {
       try {
-        this._setBoard(board);
         const updatedBoard = await boardService.updateBoard(board);
+        this._setBoard(updatedBoard);
         // this._setBoard(updatedBoard);
         // console.log(updatedBoard)
       } catch (err) {

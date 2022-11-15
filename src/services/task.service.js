@@ -11,6 +11,7 @@ export const taskService = {
   getEmptyComment,
   getEmptyTask,
   getEmptyChecklist,
+  getEmptyLabel,
 };
 const BOARD_KEY = 'boardDB';
 
@@ -87,7 +88,7 @@ function getEmptyTask() {
   return {
     title: '',
     id: utilService.makeId(),
-    labels: [],
+    labelIds: [],
     members: [],
     comments: [],
     activities: [],
@@ -110,5 +111,13 @@ function getEmptyChecklist() {
     id: utilService.makeId(),
     title: null,
     tasks: [],
+  };
+}
+
+function getEmptyLabel() {
+  return {
+    id: utilService.makeId(),
+    title: null,
+    color: '#61bd4f',
   };
 }

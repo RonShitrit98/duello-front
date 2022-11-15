@@ -25,7 +25,7 @@
     </div>
   </section>
 
-  <section v-else-if="creatingLabel" class="label-cmp">
+  <section v-else-if="isCreatingLabel" class="label-cmp">
     <header>
       <button class="back-btn" @click="goBack">
         <icon-base iconName="chevron-left" />
@@ -60,7 +60,7 @@
       <h2>Labels</h2>
       <ul>
         <li v-for="label in filteredLabels" :key="label.id">
-          <div @click="addLabel(label)" class="edit-label" :style="'background-color:' + label.color">
+          <div @click="toggleLabel(label)" class="edit-label" :style="'background-color:' + label.color">
             <span>{{ label.title }}</span>
             <icon-base iconName="check" v-if="isLabelSelected(label)" />
           </div>
@@ -74,15 +74,27 @@
   </section>
 </template>
 <script>
+import { utilService } from '../../services/util.service';
+import { taskService } from '../../services/task.service';
 import iconBase from '../icon-base.vue';
 export default {
   components: { iconBase },
-  props: ['board', 'task'],
+  props: {
+    task: {
+      type: Object,
+      required: true,
+    },
+    board: {
+      type: Object,
+      required: true,
+    },
+  },
   data() {
     return {
       search: '',
       editingLabel: null,
-      creatingLabel: null,
+      creatingLabel: taskService.getEmptyLabel(),
+      isCreatingLabel: false,
       labelOptions: [
         '#61bd4f',
         '#f2d600',
@@ -105,55 +117,68 @@ export default {
       this.creatingLabel.color = option;
     },
     updateLabel() {
-      this.$emit('updateBoardLabel', {
-        ...this.editingLabel.label,
-        title: this.editingLabel.title,
-        color: this.editingLabel.color,
-      });
-      this.editingLabel = null;
+      this.$emit('updateBoard', this.board);
+      this.goBack();
+      // this.$emit('updateBoardLabel', {
+      //   ...this.editingLabel.label,
+      //   title: this.editingLabel.title,
+      //   color: this.editingLabel.color,
+      // });
+      // this.editingLabel = null;
     },
     deleteLabel() {
-      this.$emit('deleteBoardLabel', this.editingLabel.label.id);
-      this.editingLabel = null;
+      utilService.spliceItem(this.editingLabel.id, this.board.labels);
+      this.$emit('updateBoard', this.board);
+      this.goBack();
+      // this.$emit('deleteBoardLabel', this.editingLabel.label.id);
+      // this.editingLabel = null;
     },
     createLabel() {
-      this.$emit('createBoardLabel', {
-        title: this.creatingLabel.title,
-        color: this.creatingLabel.color,
-      });
-      this.creatingLabel = null;
+      this.board.labels.push(this.creatingLabel);
+      this.$emit('updateBoard', this.board);
+      this.goBack();
+      // this.$emit('createBoardLabel', {
+      //   title: this.creatingLabel.title,
+      //   color: this.creatingLabel.color,
+      // });
+      // this.creatingLabel = null;
     },
     goBack() {
       this.editingLabel = null;
-      this.creatingLabel = null;
+      this.creatingLabel = taskService.getEmptyLabel();
+      this.isCreatingLabel = false;
     },
     edit(label) {
-      this.editingLabel = { label, title: label.title, color: label.color };
+      this.editingLabel = label;
     },
     create() {
-      this.creatingLabel = { title: '', color: this.labelOptions[0] };
+      this.isCreatingLabel = true;
     },
-    addLabel(label) {
-      this.$emit('addLabel', label);
+    toggleLabel(label) {
+      if (this.task.labelIds.includes(label.id)) {
+        const idx = this.task.labelIds.findIndex((labelId) => labelId === label.id);
+        this.task.labelIds.splice(idx, 1);
+      } else {
+        this.task.labelIds.unshift(label.id);
+      }
+      // console.log(this.task)
+      this.$emit('updateTask', this.task);
     },
     close() {
       this.$emit('close');
     },
     isLabelSelected(label) {
-      if (!this.task.labelIds) return false;
-      for (let i = 0; i < this.task.labelIds.length; i++) {
-        if (this.task.labelIds[i] === label.id) {
-          return true;
-        }
-      }
-      return false;
+      return this.task.labelIds.includes(label.id);
     },
   },
   computed: {
     filteredLabels() {
-      return this.board.labels.filter((label) => {
-        return label.title.toLowerCase().includes(this.search.trim().toLowerCase());
-      });
+      console.log(this.board.labels);
+
+      return this.board.labels;
+      // return this.board.labels.filter((label) => {
+      //   return label.title.toLowerCase().includes(this.search.trim().toLowerCase());
+      // });
     },
   },
 };

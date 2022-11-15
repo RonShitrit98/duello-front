@@ -40,7 +40,7 @@
                 </button>
               </div>
             </div>
-            <!-- <div class="labels-for-display" v-if="labels.length >= 1">
+            <div class="labels-for-display" v-if="labels.length >= 1">
               <h2>Labels</h2>
               <div class="labels-container">
                 <div class="label" v-for="label in labels" :key="label.id" :style="'background-color:' + label.color">
@@ -50,7 +50,7 @@
                   <icon-base iconName="plus" />
                 </button>
               </div>
-            </div> -->
+            </div>
             <div class="dueDate" v-if="task.dueDate" @click="selectComponent('calendar-cmp')">
               <h2>Due date</h2>
               <span>
@@ -88,20 +88,15 @@
             :board="board"
             :task="task"
             :groups="groups"
-            @addLabel="addLabel"
-            @updateBoardLabel="updateBoardLabel"
-            @deleteBoardLabel="deleteBoardLabel"
-            @createBoardLabel="createBoardLabel"
             @close="hideComponent"
             @addMember="addMember"
             @setCoverColor="setCoverColor"
             @setCoverImg="setCoverImg"
             @setCoverStyle="setCoverStyle"
-            @addChecklist="addChecklist"
             @updateTask="updateTask"
-            @saveAttachment="saveAttachment"
-            />
-          </div>
+            @updateBoard="updateBoard"
+          />
+        </div>
       </div>
     </div>
     <loader v-else color="white" />
@@ -112,7 +107,6 @@
 import { useBoardStore } from '../store/board.store';
 import { socketService } from '../services/socket.service';
 import { utilService } from '../services/util.service';
-import { taskService } from '../services/task.service';
 import { designService } from '../services/design.services';
 import { boardService } from '../services/board.service';
 import iconBase from './icon-base.vue';
@@ -176,10 +170,14 @@ export default {
     // });
   },
   methods: {
-    updateTask(task) {
+    async updateTask(task) {
+      // console.log(task, this.task);
       utilService.spliceItem(task.id, this.group.tasks, task);
       utilService.spliceItem(this.group.id, this.board.groups, this.group);
-      this.boardStore.updateBoard(this.board);
+      await this.boardStore.updateBoard(this.board);
+    },
+    async updateBoard(board) {
+      await this.boardStore.updateBoard(board);
     },
     doUpdateTask() {
       // this.$store.dispatch({
@@ -320,7 +318,7 @@ export default {
       socketService.emit('loading', { ...this.task });
       this.doUpdateTask();
     },
-    
+
     addMember(member) {
       const idx = this.task.members.findIndex((mmbr) => mmbr._id === member._id);
       if (idx === -1) {
@@ -331,45 +329,38 @@ export default {
       socketService.emit('loading', { ...this.task });
       this.doUpdateTask();
     },
-   
-    updateBoardLabel(label) {
-      this.$store.dispatch({
-        type: 'updateBoardLabel',
-        label: label,
-        boardId: this.boardId,
-      });
-    },
-    deleteBoardLabel(labelId) {
-      this.$store.dispatch({
-        type: 'deleteBoardLabel',
-        labelId: labelId,
-        boardId: this.boardId,
-      });
-    },
-    createBoardLabel(labelData) {
-      this.$store.dispatch({
-        type: 'createBoardLabel',
-        labelData: labelData,
-        boardId: this.boardId,
-      });
-    },
-    async addLabel(label) {
-      const labelId = label.id;
-      if (!this.task.labelIds) {
-        this.task.labelIds = [labelId];
-      } else {
-        if (this.task.labelIds.includes(labelId)) {
-          this.task.labelIds = this.task.labelIds.filter((id) => id !== labelId);
-        } else {
-          this.task.labelIds.unshift(labelId);
-        }
-      }
-      socketService.emit('loading', { ...this.task });
-      await this.doUpdateTask();
-    },
+
     removeTask() {
       this.$store.dispatch({ type: 'removeTask', taskId: this.task, groupId: this.group });
       this.closeTaskDetails();
+    },
+    deleteBoardLabel(labelId) {
+      // this.$store.dispatch({
+      //   type: 'deleteBoardLabel',
+      //   labelId: labelId,
+      //   boardId: this.boardId,
+      // });
+    },
+    updateBoardLabel(label) {
+      // this.$store.dispatch({
+      //   type: 'updateBoardLabel',
+      //   label: label,
+      //   boardId: this.boardId,
+      // });
+    },
+    async addLabel(label) {
+      // const labelId = label.id;
+      // if (!this.task.labelIds) {
+      //   this.task.labelIds = [labelId];
+      // } else {
+      //   if (this.task.labelIds.includes(labelId)) {
+      //     this.task.labelIds = this.task.labelIds.filter((id) => id !== labelId);
+      //   } else {
+      //     this.task.labelIds.unshift(labelId);
+      //   }
+      // }
+      // socketService.emit('loading', { ...this.task });
+      // await this.doUpdateTask();
     },
     async removeDate() {
       // this.hideComponent();
@@ -415,24 +406,35 @@ export default {
       // socketService.emit('loading', { ...this.task });
       // this.addActivity({ type: 'activity-cmp', action: `attached ${title} to this card` });
     },
+    createBoardLabel(labelData) {
+      // this.$store.dispatch({
+      //   type: 'createBoardLabel',
+      //   labelData: labelData,
+      //   boardId: this.boardId,
+      // });
+    },
   },
   computed: {
     labels() {
+      const labels = this.task.labelIds.map((labelId) => {
+        return this.board.labels.find((label) => label.id === labelId);
+      });
+      return labels;
       // return this.$store.getters.boardLabels.filter((label) => {
-        //   if (!this.task.labelIds) return false;
-        //   return this.task.labelIds.includes(label.id);
-        // });
-      },
-      board() {
-        return this.boardStore.currBoard;
-      },
-      isMember() {
-        return this.task.members.some((member) => member._id === this.loggedinUser._id);
-      },
-      coverStyle() {
-        if (this.task.style.cover.type === 'color') {
-          return `background-color: ${this.task.style.cover.color}`;
-        }
+      //   if (!this.task.labelIds) return false;
+      //   return this.task.labelIds.includes(label.id);
+      // });
+    },
+    board() {
+      return this.boardStore.currBoard;
+    },
+    isMember() {
+      return this.task.members.some((member) => member._id === this.loggedinUser._id);
+    },
+    coverStyle() {
+      if (this.task.style.cover.type === 'color') {
+        return `background-color: ${this.task.style.cover.color}`;
+      }
       if (this.task.style.cover.type === 'img') {
         return `background-image: url(${this.task.style.cover.imgUrl}); max-height: 160px `;
       }
