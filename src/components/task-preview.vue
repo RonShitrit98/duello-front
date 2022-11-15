@@ -15,7 +15,7 @@
         <span :class="labelsExpanded ? 'show' : 'hide'">{{ label.title }}&nbsp;</span>
       </div>
     </div>
-    <textarea class="isEditing" v-model="task.title"  v-if="canEditTitle" :autofocus="true"></textarea>
+    <textarea class="isEditing" v-model="task.title" v-if="canEditTitle" :autofocus="true"></textarea>
     <resizable-textarea v-else :value="taskTitle" :disabled="true" />
     <div v-if="!isCoverBcg" class="task-extras">
       <div class="left">
@@ -58,10 +58,15 @@
 
 <script>
 import { isBefore } from 'date-fns';
+import { useBoardStore } from '../store/board.store';
 import iconBase from './icon-base.vue';
 import resizableTextarea from './resizable-textarea.vue';
 
 export default {
+  setup() {
+    const boardStore = useBoardStore();
+    return { boardStore };
+  },
   props: {
     task: {
       type: Object,
@@ -121,10 +126,9 @@ export default {
       // return this.$store.getters.labelsExpanded;
     },
     labels() {
-      // return this.$store.getters.boardLabels.filter((label) => {
-      //   if (!this.task.labelIds) return false;
-      //   return this.task.labelIds.includes(label.id);
-      // });
+      return this.task.labelIds.map((id) => {
+        return this.boardStore.labels.find((label) => label.id === id);
+      });
     },
     isCover() {
       if (!this.task.style.cover.type) return false;

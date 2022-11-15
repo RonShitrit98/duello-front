@@ -20,6 +20,9 @@ export const useBoardStore = defineStore('board', {
     currBoards() {
       return JSON.parse(JSON.stringify(this.boards));
     },
+    labels() {
+      return JSON.parse(JSON.stringify(this.board.labels));
+    },
     style() {
       if (!this.board) {
         return {

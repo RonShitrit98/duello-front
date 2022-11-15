@@ -42,7 +42,7 @@ function applyDrag(arr, dragResult) {
 
 function spliceItem(itemId, itemList, replace = false) {
   const idx = itemList.findIndex((item) => itemId === item.id);
-  if (idx < 0) console.log('oops!!');
+  if (idx < 0) return
   else if (!replace) itemList.splice(idx, 1);
   else itemList.splice(idx, 1, replace);
   return itemList;
