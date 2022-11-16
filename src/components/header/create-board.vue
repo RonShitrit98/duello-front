@@ -81,7 +81,7 @@
       <div v-else-if="isMoreColors" class="main-content">
         <div class="color-container">
           <div
-            v-for="color in colorsPrev.slice(1, 10)"
+            v-for="color in design.colors.slice(1, 10)"
             :key="color.color"
             @click="setBoardClr(color.color)"
             :style="'background-color:' + color.color"
@@ -137,7 +137,6 @@ export default {
     },
     create() {
       this.$emit('create', { ...this.boardToEdit });
-      this.boardToEdit = boardService.getEmptyBoard();
     },
     async toggleCostumizeModal() {
       this.isCostumize = !this.isCostumize;

@@ -163,7 +163,6 @@ export default {
   },
   methods: {
     async updateTask(task = this.task) {
-      // console.log(task, this.task);
       utilService.spliceItem(task.id, this.group.tasks, task);
       utilService.spliceItem(this.group.id, this.board.groups, this.group);
       await this.boardStore.updateBoard(this.board);
@@ -254,7 +253,6 @@ export default {
       });
     },
     selectComponent(type) {
-      // console.log(this.task)
       if (this.cmp === type) {
         this.hideComponent();
       } else {
@@ -402,14 +400,9 @@ export default {
   },
   computed: {
     labels() {
-      const labels = this.task.labelIds.map((labelId) => {
+      return this.task.labelIds.map((labelId) => {
         return this.board.labels.find((label) => label.id === labelId);
       });
-      return labels;
-      // return this.$store.getters.boardLabels.filter((label) => {
-      //   if (!this.task.labelIds) return false;
-      //   return this.task.labelIds.includes(label.id);
-      // });
     },
     board() {
       return this.boardStore.currBoard;
@@ -427,7 +420,7 @@ export default {
       return '';
     },
     groups() {
-      // return this.$store.getters.groups;
+      return this.boardStore.currBoard.groups
     },
   },
   components: {
