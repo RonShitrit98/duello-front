@@ -14,7 +14,8 @@
         <div class="task-details-container">
           <icon-base class="card-header" iconName="cardB" />
           <div>
-            <resizable-textarea :value="task.title" @valueChange="handleTitleChange" @focusOut="saveTitle" />
+            <textarea v-model="task.title" @keyup="updateTask"></textarea>
+            <!-- <resizable-textarea :value="task.title" @valueChange="handleTitleChange" @focusOut="saveTitle" /> -->
             <div class="info-in-group">
               <p>
                 in list
@@ -65,8 +66,7 @@
             v-for="checklist in task.checklists"
             :key="checklist.id"
             :checklist="checklist"
-            @save="updateChecklist"
-            @remove="removeChecklist"
+            @updateCheck="updateChecklist"
           />
           <activity-details
             :task="task"
@@ -90,9 +90,6 @@
             :groups="groups"
             @close="hideComponent"
             @addMember="addMember"
-            @setCoverColor="setCoverColor"
-            @setCoverImg="setCoverImg"
-            @setCoverStyle="setCoverStyle"
             @updateTask="updateTask"
             @updateBoard="updateBoard"
           />
@@ -107,7 +104,6 @@
 import { useBoardStore } from '../store/board.store';
 import { socketService } from '../services/socket.service';
 import { utilService } from '../services/util.service';
-import { designService } from '../services/design.services';
 import { boardService } from '../services/board.service';
 import iconBase from './icon-base.vue';
 import taskDetailsMenu from '../components/task-details-menu.vue';
@@ -148,16 +144,12 @@ export default {
   },
   data() {
     return {
-      // task: null,
       loggedinUser: null,
-      // group: null,
-      savedDate: null,
+      // savedDate: null,
       cmp: null,
     };
   },
   async created() {
-    console.log(this.group);
-
     // const user = await this.$store.getters.user;
     // this.loggedinUser = user;
     // const res = await taskService.getById(this.taskId, this.groupId, this.boardId);
@@ -170,7 +162,7 @@ export default {
     // });
   },
   methods: {
-    async updateTask(task) {
+    async updateTask(task = this.task) {
       // console.log(task, this.task);
       utilService.spliceItem(task.id, this.group.tasks, task);
       utilService.spliceItem(this.group.id, this.board.groups, this.group);
@@ -178,19 +170,6 @@ export default {
     },
     async updateBoard(board) {
       await this.boardStore.updateBoard(board);
-    },
-    doUpdateTask() {
-      // this.$store.dispatch({
-      //   type: 'updateTask',
-      //   taskPartial: JSON.parse(JSON.stringify(this.taskToEdit)),
-      //   groupId: this.groupId,
-      // });
-    },
-    handleTitleChange(value) {
-      this.task.title = value;
-    },
-    saveTitle() {
-      this.doUpdateTask();
     },
     addActivity({ type, action }) {
       const activity = boardService.getEmptyActivity();
@@ -206,20 +185,12 @@ export default {
         type: 'getActivities',
       });
     },
-    removeChecklist(checkId) {
-      const idx = this.task.checklist.findIndex((list) => list.id === checkId);
-      const title = this.task.checklist[idx].title;
-      this.task.checklist.splice(idx, 1);
-      socketService.emit('loading', { ...this.task });
-      this.doUpdateTask();
-      this.addActivity({ type: 'activity-cmp', action: `removed ${title} from this card` });
-    },
-    updateChecklist(checklist) {
-      const idx = this.task.checklist.findIndex((list) => list.id === checklist.id);
-      this.task.checklist.splice(idx, 1, checklist);
-      socketService.emit('loading', { ...this.task });
-      this.doUpdateTask();
-      this.addActivity({ type: 'activity-cmp', action: `updated ${checklist.title} in this card` });
+    updateChecklist(action, checklist) {
+      const replace = action === 'remove' ? false : checklist;
+      utilService.spliceItem(checklist.id, this.task.checklists, replace);
+      this.updateTask();
+      // socketService.emit('loading', { ...this.task });
+      // this.addActivity({ type: 'activity-cmp', action: `updated ${checklist.title} in this card` });
     },
     async addChecklist(newChecklist) {
       this.task.checklist.unshift(newChecklist);
@@ -296,28 +267,6 @@ export default {
     closeTaskDetails() {
       this.$emit('closeTaskDetails');
     },
-    setCoverColor(color) {
-      this.task.style.cover.type = 'color';
-      this.task.style.cover.color = color;
-      this.task.style.cover.imgUrl = '';
-      if (!this.task.style.cover.style && color) this.task.style.cover.style = 'solid';
-      socketService.emit('loading', { ...this.task });
-      this.doUpdateTask();
-    },
-    async setCoverImg(imgUrl) {
-      this.task.style.cover.type = 'img';
-      this.task.style.cover.imgUrl = imgUrl;
-      if (imgUrl) this.task.style.cover.color = (await designService.getAvgColor(this.task.style.cover.imgUrl)).hex;
-      else this.task.style.cover.color = '';
-      if (!this.task.style.cover.style && imgUrl) this.task.style.cover.style = 'solid';
-      socketService.emit('loading', { ...this.task });
-      this.doUpdateTask();
-    },
-    setCoverStyle(coverStyle) {
-      // this.task.style.cover.style = coverStyle;
-      // socketService.emit('loading', { ...this.task });
-      // this.doUpdateTask();
-    },
 
     addMember(member) {
       const idx = this.task.members.findIndex((mmbr) => mmbr._id === member._id);
@@ -333,6 +282,43 @@ export default {
     removeTask() {
       this.$store.dispatch({ type: 'removeTask', taskId: this.task, groupId: this.group });
       this.closeTaskDetails();
+    },
+    removeChecklist(checkId) {
+      // const idx = this.task.checklist.findIndex((list) => list.id === checkId);
+      // const title = this.task.checklist[idx].title;
+      // this.task.checklist.splice(idx, 1);
+      // socketService.emit('loading', { ...this.task });
+      // this.doUpdateTask();
+      // this.addActivity({ type: 'activity-cmp', action: `removed ${title} from this card` });
+    },
+    doUpdateTask() {
+      // this.$store.dispatch({
+      //   type: 'updateTask',
+      //   taskPartial: JSON.parse(JSON.stringify(this.taskToEdit)),
+      //   groupId: this.groupId,
+      // });
+    },
+    setCoverStyle(coverStyle) {
+      // this.task.style.cover.style = coverStyle;
+      // socketService.emit('loading', { ...this.task });
+      // this.doUpdateTask();
+    },
+    async setCoverImg(imgUrl) {
+      // this.task.style.cover.type = 'img';
+      // this.task.style.cover.imgUrl = imgUrl;
+      // if (imgUrl) this.task.style.cover.color = (await designService.getAvgColor(this.task.style.cover.imgUrl)).hex;
+      // else this.task.style.cover.color = '';
+      // if (!this.task.style.cover.style && imgUrl) this.task.style.cover.style = 'solid';
+      // socketService.emit('loading', { ...this.task });
+      // this.doUpdateTask();
+    },
+    setCoverColor(color) {
+      // this.task.style.cover.type = 'color';
+      // this.task.style.cover.color = color;
+      // this.task.style.cover.imgUrl = '';
+      // if (!this.task.style.cover.style && color) this.task.style.cover.style = 'solid';
+      // socketService.emit('loading', { ...this.task });
+      // this.doUpdateTask();
     },
     deleteBoardLabel(labelId) {
       // this.$store.dispatch({

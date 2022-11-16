@@ -11,7 +11,7 @@
             <img class="img-attachment" :src="attachment.url" />
             <div class="details-container-display">
               <div class="attach-fileName">
-                {{ attachment.fileName }}
+                {{ attachment.name }}
               </div>
               <div class="attach-created">
                 {{ formatDate(attachment.created) }}

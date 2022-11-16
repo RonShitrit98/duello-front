@@ -102,8 +102,8 @@ import isDarkColor from 'is-dark-color';
 export default {
   data() {
     return {
-      design: null,
       boardToEdit: boardService.getEmptyBoard(),
+      design: designService.query(),
       isCostumize: false,
       isSearch: false,
       isMoreColors: false,
@@ -112,7 +112,6 @@ export default {
   },
   async created() {
     this.loggedinUser = this.$store.getters.user;
-    this.design = designService.query();
     this.boardToEdit.style.backgroundImg = this.design.imgs[0];
     this.searchImg = await designService.getImgs(100, 'desktop');
   },

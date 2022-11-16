@@ -54,12 +54,13 @@ export default {
         this.loading = true;
         this.url = await imgService.uploadImg(ev.target.files);
         this.loading = false;
+        this.linkName = ev.target.files[0].name;
       }
       // if (!this.url.includes('https://')) return;
       const attachment = {
         type,
         url: this.url,
-        name: this.linkName ,
+        name: this.linkName,
         created: new Date().getTime(),
       };
       this.task.attachments.push(attachment);
@@ -93,7 +94,6 @@ export default {
       // const title = attachment.name ? attachment.name : attachment.url;
       // socketService.emit('loading', { ...this.task });
       // this.addActivity({ type: 'activity-cmp', action: `attached ${title} to this card` });
-
       // this.$emit('updateTask', this.task);
     },
     close() {

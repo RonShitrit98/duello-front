@@ -53,7 +53,7 @@ export default {
       this.task.checklists.push(this.newChecklist);
       this.close();
       this.newChecklist = taskService.getEmptyChecklist()
-      this.emit('updateTask', this.task);
+      this.$emit('updateTask', this.task);
       // const todos = this.selectedChecklist === null ? [] : this.selectedChecklist.todos;
       // this.$emit('addChecklist', { id: utilService.makeId(), title: this.title, todos });
       // this.selectedChecklist = null;

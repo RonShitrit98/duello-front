@@ -103,6 +103,7 @@
 import iconBase from '../icon-base.vue';
 import { designService } from '../../services/design.services.js';
 import { imgService } from '../../services/imgUpload.service.js';
+import isDarkColor from 'is-dark-color';
 
 export default {
   props: {
@@ -162,6 +163,7 @@ export default {
         this.task.style.cover.type = 'img';
         this.task.style.cover.imgUrl = imgUrl;
         this.task.style.cover.color = await designService.getAvgColor(imgUrl);
+        if (!this.task.style.cover.style) this.setCoverStyle('solid');
       }
       this.$emit('updateTask', this.task);
       if (this.isSearch) {
@@ -198,24 +200,22 @@ export default {
       this.imgs = imgs;
     },
     async onUploadImg(ev) {
-      // this.loading = true;
-      // const res = await uploadImg(ev);
-      // this.loading = false;
-      // const { url, original_filename, original_extension, format } = res;
-      // const attachment = {
-      //   type: 'image',
-      //   url,
-      //   fileName: `${original_filename}.${original_extension ?? format}`,
-      //   created: new Date().getTime(),
-      // };
-      // this.$emit('saveAttachment', attachment);
-      // this.setCoverImg(attachment.url);
-      // console.log(attachment);
+      this.loading = true;
+      this.loading = true;
+      const attachment = {
+        type: 'image',
+        url: await imgService.uploadImg(ev.target.files),
+        name: ev.target.files[0].name,
+        created: new Date().getTime(),
+      };
+      this.loading = false;
+      this.task.attachments.push(attachment);
+      this.setCoverImg(attachment.url);
     },
   },
   async created() {
     this.imgs = await designService.getImgs();
-    
+
     // this.$store.dispatch('loadDesign');
     // this.task.style.color = this.task.style.cover.color;
     // this.task.style.imgUrl = this.task.style.cover.imgUrl;

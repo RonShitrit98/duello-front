@@ -1,5 +1,6 @@
 <template>
-  <section class="checklist-details" v-if="checklist">taskTo
+  <section class="checklist-details" v-if="checklist">
+    taskTo
     <div class="header">
       <icon-base class="checklist-icon" iconName="checklist" />
       <div class="container">
@@ -11,7 +12,7 @@
       </div>
 
       <delete-modal
-        :id="checklist.id"
+        :id="checklist"
         element="checklist"
         :pos="{ right: -240, top: 45 }"
         v-if="isRemoveCheck"
@@ -157,6 +158,7 @@ import iconBase from './icon-base.vue';
 import deleteTodo from './dynamic-components/delete-todo-cmp.vue';
 import deleteModal from './delete-modal.vue';
 import resizableTextarea from './resizable-textarea.vue';
+import { taskService } from '../services/task.service';
 
 export default {
   props: {
@@ -171,8 +173,7 @@ export default {
       areDone: 0,
       isAdd: false,
       isEdit: false,
-      // listToEdit: JSON.parse(JSON.stringify(this.checklist)),
-      todoToAdd: { id: utilService.makeId(), title: '', isDone: false },
+      todoToAdd: taskService.getEmptyTodo(),
       modalType: null,
       target: null,
       isRemoveCheck: false,
@@ -180,13 +181,12 @@ export default {
     };
   },
   created() {
-    // this.calcDone();
+    this.calcDone();
     // socketService.on('update', () => {
     //   setTimeout(() => {
     //     this.checklist = this.checklist;
     //   }, 1000);
     // });
-
     // socketService.on('loading', (task) => {
     //   setTimeout(() => {
     //     this.listToEdit = task.checklist.find((currChecklist) => currChecklist.id === this.listToEdit.id);
@@ -196,16 +196,14 @@ export default {
   },
   methods: {
     toggleEdit(todoId) {
+      this.isEdit = !this.isEdit;
       if (this.target) {
         this.target = null;
-        this.isEdit = false;
         return;
       }
       this.target = todoId;
-      this.isEdit = true;
     },
     setModalType(type, id) {
-      // console.log('delete');
       if (this.modalType) {
         this.modalType = null;
         this.target = null;
@@ -215,25 +213,28 @@ export default {
       this.modalType = type;
     },
     removeTodo(todoId) {
-      const idx = this.checklist.todos.findIndex((todo) => todo.id === todoId);
-      this.checklist.todos.splice(idx, 1);
-      this.$emit('save', { ...this.checklist });
+      utilService.spliceItem(todoId, this.checklist);
+      this.saveChecklist();
+      // const idx = this.checklist.todos.findIndex((todo) => todo.id === todoId);
+      // this.checklist.todos.splice(idx, 1);
+      // this.$emit('save', { ...this.checklist });
     },
     addTodo() {
       if (!this.todoToAdd.title) return;
       this.checklist.todos.push(this.todoToAdd);
-      this.$emit('save', { ...this.checklist });
-      this.todoToAdd = { id: utilService.makeId(), title: '', isDone: false };
+      this.saveChecklist();
+      this.todoToAdd = taskService.getEmptyTodo();
       this.calcDone();
     },
     saveChecklist() {
-      this.$emit('save', this.checklist);
+      this.$emit('updateCheck', 'save', this.checklist);
       this.calcDone();
-      if (this.isEdit) this.isEdit = !this.isEdit;
+      // if (this.isEdit) this.isEdit = !this.isEdit;
+      this.isEdit = !this.isEdit;
     },
-    removeChecklist(checkId) {
+    removeChecklist(checklist) {
       this.isRemoveCheck = false;
-      this.$emit('remove', checkId);
+      this.$emit('updateCheck', 'remove', checklist);
     },
     calcDone() {
       if (!this.checklist.todos.length || !this.checklist.todos) {
