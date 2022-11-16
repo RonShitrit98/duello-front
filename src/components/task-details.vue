@@ -314,9 +314,9 @@ export default {
       this.doUpdateTask();
     },
     setCoverStyle(coverStyle) {
-      this.task.style.cover.style = coverStyle;
-      socketService.emit('loading', { ...this.task });
-      this.doUpdateTask();
+      // this.task.style.cover.style = coverStyle;
+      // socketService.emit('loading', { ...this.task });
+      // this.doUpdateTask();
     },
 
     addMember(member) {

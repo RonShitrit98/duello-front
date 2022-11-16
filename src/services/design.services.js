@@ -85,5 +85,5 @@ function query() {
 async function getAvgColor(imgUrl) {
   const fac = new FastAverageColor();
   const color = await fac.getColorAsync(imgUrl);
-  return color;
+  return color.hex;
 }

@@ -1,8 +1,5 @@
 <template>
   <section class="task-preview" v-if="task">
-    <div v-if="isCover" class="task-prev-cover" :style="coverStyle">
-      <img class="cover-img" v-if="task.style.cover.type === 'img'" :src="task.style.cover.imgUrl" />
-    </div>
     <div v-if="!isCoverBcg" class="task-labels">
       <div
         class="task-label"
@@ -135,7 +132,7 @@ export default {
       return true;
     },
     coverStyle() {
-      if (this.task.style.cover.type === 'color') {
+      if (this.task.style.cover.type === 'color' && this.isCoverBcg) {
         return `background-color: ${this.task.style.cover.color}; height: 32px`;
       } else return '';
     },

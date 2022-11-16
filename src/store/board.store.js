@@ -60,8 +60,9 @@ export const useBoardStore = defineStore('board', {
     },
     async updateBoard(board) {
       try {
+        this._setBoard(board);
         const updatedBoard = await boardService.updateBoard(board);
-        this._setBoard(updatedBoard);
+        this._setBoard(board);
         // this._setBoard(updatedBoard);
         // console.log(updatedBoard)
       } catch (err) {
@@ -71,7 +72,6 @@ export const useBoardStore = defineStore('board', {
     async loadBoard(id) {
       try {
         const board = await boardService.getById(id);
-        console.log(board);
         this._setBoard(board);
       } catch (err) {
         console.log(err);

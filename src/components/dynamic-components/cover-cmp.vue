@@ -19,10 +19,10 @@
           <span class="board-title-fade"></span>
         </div>
       </div>
-      <div v-if="colors">
+      <div v-if="style.colors">
         <p>Colors</p>
         <div class="color-container">
-          <div v-for="color in colors" :key="color.id">
+          <div v-for="color in style.colors" :key="color.id">
             <div @click="setCoverColor(color.color)" class="color-boxes" :style="'background-color:' + color.color">
               <span class="board-title-fade"></span>
 
@@ -47,10 +47,10 @@
       <div v-if="imgs">
         <p>Pohots from Unsplash</p>
         <div class="img-container">
-          <div @click="setCoverImg(img)" class="img-boxes" v-for="img in imgs" :key="img">
-            <img :src="img" />
+          <div @click="setCoverImg(img.thumb)" class="img-boxes" v-for="img in imgs" :key="img">
+            <img :src="img.thumb" />
             <span class="board-title-fade"></span>
-            <span :class="img === task.style.cover.imgUrl ? 'focused' : ''"></span>
+            <span :class="img.thumb === task.style.cover.imgUrl ? 'focused' : ''"></span>
           </div>
         </div>
         <button @click="openImgSearch" class="search-btn">Search for photos</button>
@@ -74,12 +74,12 @@
       <div v-if="!imgSearch" class="suggested">
         <div class="search-words">
           <p>Suggested searches</p>
-          <button v-for="keys in suggested" :key="keys" @click="setSearch(keys)">{{ keys }}</button>
+          <button v-for="keys in style.suggestedSearches" :key="keys" @click="setSearch(keys)">{{ keys }}</button>
         </div>
         <p>Top photos</p>
         <div class="img-container">
-          <div @click="setCoverImg(img)" class="img-boxes" v-for="img in imgs">
-            <img :src="img" />
+          <div @click="setCoverImg(img.thumb)" class="img-boxes" v-for="img in imgs">
+            <img :src="img.thumb" />
             <span class="board-title-fade"></span>
           </div>
         </div>
@@ -90,8 +90,8 @@
         </div>
         <p>Results</p>
         <div class="img-container">
-          <div @click="setCoverImg(img)" class="img-boxes" v-for="img in imgs">
-            <img :src="img" />
+          <div @click="setCoverImg(img.thumb)" class="img-boxes" v-for="img in imgs">
+            <img :src="img.thumb" />
             <span class="board-title-fade"></span>
           </div>
         </div>
@@ -113,8 +113,7 @@ export default {
   },
   data() {
     return {
-      currColor: '',
-      currImg: '',
+      style: designService.query(),
       imgs: null,
       isSearch: false,
       imgSearch: '',
@@ -122,16 +121,9 @@ export default {
     };
   },
   computed: {
-    colors() {
-      return this.$store.getters.colors;
-    },
-
     coverStyle() {
-      if (this.currImg) return `background-image: url(${this.currImg})`;
-      return `background-color: ${this.currColor}`;
-    },
-    suggested() {
-      return this.$store.getters.imgSearches;
+      if (this.task.style.cover.imgUrl) return `background-image: url(${this.task.style.cover.imgUrl})`;
+      return `background-color: ${this.task.style.cover.color}`;
     },
     isSolidFocus() {
       if (this.task.style.cover.style === 'solid') {
@@ -146,43 +138,47 @@ export default {
   components: { iconBase },
   methods: {
     async searchImg() {
-      var imgs;
-      if (!this.imgSearch) imgs = await designService.getImgs(12);
-      else imgs = await designService.getImgs(60, this.imgSearch);
-      this.imgs = imgs;
+      if (!this.imgSearch) this.imgs = await designService.getImgs(12);
+      else this.imgs = await designService.getImgs(60, this.imgSearch);
     },
     closeModal() {
       this.$emit('close');
     },
     setCoverColor(color) {
-      if (color === this.currColor) {
-        this.currColor = '';
-        this.setCoverStyle(false);
+      if (color === this.task.style.cover.color) {
+        this.resetCover();
       } else {
-        this.currColor = color;
+        this.task.style.cover.color = color;
+        this.task.style.cover.imgUrl = '';
+        this.task.style.cover.type = 'color';
+        if (!this.task.style.cover.style) this.setCoverStyle('solid');
       }
-      this.currImg = '';
-      this.$emit('setCoverColor', this.currColor);
+      this.$emit('updateTask', this.task);
     },
     async setCoverImg(imgUrl) {
-      if (imgUrl === this.currImg) {
-        this.currImg = '';
-        this.task.style.cover.style = '';
-        this.setCoverStyle(false);
+      if (imgUrl === this.task.style.cover.imgUrl) {
+        this.resetCover();
       } else {
-        this.currImg = imgUrl;
+        this.task.style.cover.type = 'img';
+        this.task.style.cover.imgUrl = imgUrl;
+        this.task.style.cover.color = await designService.getAvgColor(imgUrl);
       }
-      this.currColor = '';
-      this.$emit('setCoverImg', this.currImg);
+      this.$emit('updateTask', this.task);
       if (this.isSearch) {
         this.isSearch = false;
         const imgs = await designService.getImgs(5);
-        imgs.unshift(this.currImg);
+        imgs.unshift(this.task.style.cover.imgUrl);
         this.imgs = imgs;
       }
     },
+    resetCover() {
+      this.task.style.cover.imgUrl = '';
+      this.task.style.cover.color = '';
+      this.task.style.cover.type = '';
+    },
     setCoverStyle(coverStyle) {
-      this.$emit('setCoverStyle', coverStyle);
+      this.task.style.cover.style = coverStyle;
+      this.$emit('updateTask', this.task);
     },
     async openImgSearch() {
       this.isSearch = true;
@@ -196,8 +192,8 @@ export default {
     async closeSearch() {
       this.isSearch = false;
       const imgs = await designService.getImgs();
-      if (this.currImg && !imgs.some((img) => img === this.currImg)) {
-        imgs.splice(0, 1, this.currImg);
+      if (this.task.style.cover.imgUrl && !imgs.some((img) => img === this.task.style.cover.imgUrl)) {
+        imgs.splice(0, 1, this.task.style.cover.imgUrl);
       }
       this.imgs = imgs;
     },
@@ -218,14 +214,16 @@ export default {
     },
   },
   async created() {
-    this.$store.dispatch('loadDesign');
-    this.currColor = this.task.style.cover.color;
-    this.currImg = this.task.style.cover.imgUrl;
-    const imgs = await designService.getImgs();
-    if (this.currImg && !imgs.some((img) => img === this.currImg)) {
-      imgs.splice(0, 1, this.currImg);
-    }
-    this.imgs = imgs;
+    this.imgs = await designService.getImgs();
+    
+    // this.$store.dispatch('loadDesign');
+    // this.task.style.color = this.task.style.cover.color;
+    // this.task.style.imgUrl = this.task.style.cover.imgUrl;
+    // const imgs = await designService.getImgs();
+    // if (this.task.style.imgUrl && !imgs.some((img) => img === this.task.style.imgUrl)) {
+    //   imgs.splice(0, 1, this.currImg);
+    // }
+    // this.imgs = imgs;
   },
 };
 </script>
