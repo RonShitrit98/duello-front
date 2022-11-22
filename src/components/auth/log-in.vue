@@ -18,11 +18,17 @@
         <input class="submit-btn" type="submit" value="Log in" />
       </form>
       <h3 class="separator">OR</h3>
-      <div class="g-signin2" data-onsuccess="onSignIn"></div>
+      <a class="google-button" :href="signupWithGoogle" @click="googleSignup">
+        <img
+          src="https://res.cloudinary.com/dtseyauom/image/upload/v1669133351/gxuu2kraly0pkrho6sfo.png"
+          alt=""
+        />
+        Sign in with Google
+      </a>
     </div>
     <p>
-      If don't have a user you can
-      <router-link to="/auth/signup"> sign up here</router-link>
+      Don't have a user? you can
+      <router-link class="router-link" to="/auth/signup"> sign up here</router-link>
     </p>
   </section>
 </template>

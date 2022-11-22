@@ -1,7 +1,7 @@
 .login-cmp {
   margin: 0 auto;
   width: 400px;
-  height: 640px;
+  // height: 640px;
 
   .logo-container {
     display: flex;
@@ -31,20 +31,21 @@
       margin-bottom: 40px;
     }
     .logo-img {
-      background-image: url('./src/assets/imgs/trello.png');
+      background-image: url("./src/assets/imgs/trello.png");
       background-size: 64px 64px;
       height: 64px;
       width: 64px;
       margin-right: 4px;
     }
   }
-  .login-container {
+  .login-container,
+  .signup-container {
     background-color: #ffffff;
     border-radius: 3px;
     padding: 25px 40px;
     box-shadow: rgb(0 0 0 / 10%) 0 0 10px;
-    font-family: '-apple-system', BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, 'Fira Sans', 'Droid Sans',
-      'Helvetica Neue', sans-serif;
+    font-family: "-apple-system", BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+      Ubuntu, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     margin: 0 auto;
 
     h2 {
@@ -83,15 +84,65 @@
         background: #61bd4f;
       }
     }
+
+    .google-button {
+      text-decoration: none;
+      font-family: roboto;
+      color: rgba($color: #000000, $alpha: 0.54);
+      font-size: rem(18px);
+      display: block;
+      height: 55px;
+      box-shadow: 0px 2px 7px -2.5px rgba(0, 0, 0, 0.53);
+      border-radius: 5px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      img {
+        width: 30px;
+        height: 30px;
+        margin: 0px 25px 0px 20px;
+      }
+      &:hover {
+        box-shadow: 0px 0px 8px 1px rgba(66, 133, 244, 0.5);
+      }
+    }
+
+    .img-input {
+      display: none;
+    }
+    .img-label {
+      // background-color: #61bd4f;
+      display: block;
+      height: 100px;
+      margin-bottom: 16.8px;
+      img {
+        object-fit: cover;
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+      }
+    }
   }
   .separator {
     font-size: 12px;
     margin-top: 16px;
     margin-bottom: 16px;
-    font-family: '-apple-system', BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, 'Fira Sans', 'Droid Sans',
-      'Helvetica Neue', sans-serif;
+    font-family: "-apple-system", BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+      Ubuntu, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     font-weight: 300;
     line-height: 1.44em;
     text-align: center;
+  }
+
+  p {
+    width: 100%;
+    margin-top: 20px;
+    text-align: center;
+    a {
+      color: #000000;
+      &:hover {
+        color: rgb(66, 133, 244);
+      }
+    }
   }
 }
