@@ -14,9 +14,11 @@
           v-model="newUser.password"
           placeholder="Password"
         />
-        <label class="img-label" for="img-input"> 
-          <img :src="newUser.imgUrl" alt="">
-          Upload profile picture</label>
+        <label class="img-label" for="img-input">
+          <img :src="newUser.imgUrl" alt="" />
+          <loader v-if="isLoading"/>
+          <span v-else>Upload profile picture</span>
+        </label>
         <input class="submit-btn" type="submit" value="Sign up" />
         <input
           @change="uploadImg($event)"
@@ -46,10 +48,12 @@
 import { userService } from "../../services/user.service";
 import { imgService } from "../../services/imgUpload.service";
 import { getGoogleUrl } from "../../services/google.service";
+import loader from "../loader.vue";
 export default {
   data() {
     return {
       newUser: userService.getEmptyUser(),
+      isLoading: false,
     };
   },
   methods: {
@@ -58,8 +62,10 @@ export default {
       this.$emit("signup", this.newUser);
     },
     async uploadImg(ev) {
+      this.isLoading = true;
       const img = await imgService.uploadImg(ev.target.files);
       this.newUser.imgUrl = img;
+      this.isLoading = false;
     },
   },
   computed: {
@@ -67,5 +73,6 @@ export default {
       return getGoogleUrl("/");
     },
   },
+  components: { loader },
 };
 </script>
