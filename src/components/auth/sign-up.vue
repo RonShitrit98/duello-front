@@ -28,13 +28,15 @@
       />
     </form>
     <h3 class="separator">OR</h3>
-    <div class="g-signin2" data-onsuccess="onSignIn"></div>
+    <a :href="signupWithGoogle" @click="googleSignup">Signup with Google</a>
+    <!-- <div class="g-signin2" data-onsuccess="onSignIn"></div> -->
   </div>
 </template>
 
 <script>
 import { userService } from "../../services/user.service";
 import { imgService } from "../../services/imgUpload.service";
+import { getGoogleUrl } from "../../services/google.service";
 export default {
   data() {
     return {
@@ -49,6 +51,11 @@ export default {
     async uploadImg(ev) {
       const img = await imgService.uploadImg(ev.target.files);
       this.newUser.imgUrl = img;
+    },
+  },
+  computed: {
+    signupWithGoogle() {
+      return getGoogleUrl("/");
     },
   },
 };
