@@ -167,7 +167,7 @@ export default {
     };
   },
   async created() {
-    console.log(this.board);
+    console.log(this.task.style.cover);
     // const user = await this.$store.getters.user;
     // this.loggedinUser = user;
     // const res = await taskService.getById(this.taskId, this.groupId, this.boardId);

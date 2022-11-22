@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { useUserStore } from "./user.store";
 import { boardService } from "../services/board.service";
-import { userService } from "../services/user.service";
 export const useBoardStore = defineStore("board", {
   state: () => {
     return {
@@ -70,9 +69,12 @@ export const useBoardStore = defineStore("board", {
         console.log(err);
       }
     },
+    resetBoard() {
+      this.board = null;
+    },
     _setBoard(board) {
       this.board = board;
-      console.log(this.board)
+      console.log(this.board);
       // const idx = this.boards.findIndex((b) => board._id === b._id);
       // if (idx < 0) this.boards.push(board);
       // else this.boards.splice(idx, 1, board);

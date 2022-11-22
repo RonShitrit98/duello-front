@@ -193,17 +193,20 @@ export default {
         this.task.style.cover.color = color;
         this.task.style.cover.imgUrl = "";
         this.task.style.cover.type = "color";
+        this.task.style.cover.isDark = isDarkColor(color);
         if (!this.task.style.cover.style) this.setCoverStyle("solid");
       }
       this.$emit("updateTask", this.task);
     },
     async setCoverImg(imgUrl) {
+      const color = await designService.getAvgColor(imgUrl);
       if (imgUrl === this.task.style.cover.imgUrl) {
         this.resetCover();
       } else {
         this.task.style.cover.type = "img";
         this.task.style.cover.imgUrl = imgUrl;
-        this.task.style.cover.color = await designService.getAvgColor(imgUrl);
+        this.task.style.cover.color = color.hex;
+        this.task.style.cover.isDark = color.isDark;
         if (!this.task.style.cover.style) this.setCoverStyle("solid");
       }
       this.$emit("updateTask", this.task);

@@ -130,7 +130,7 @@
 import { boardService } from "../services/board.service";
 import { designService } from "../services/design.services";
 import iconBase from "./icon-base.vue";
-import  isDarkColor  from "is-dark-color";
+import isDarkColor from "is-dark-color";
 
 export default {
   data() {
@@ -168,7 +168,8 @@ export default {
       this.$emit("closeModal");
     },
     create() {
-      this.$emit("create", { ...this.boardToEdit });
+      console.log(this.boardToEdit.style);
+      this.$emit("create", this.boardToEdit);
     },
     async toggleCostumizeModal() {
       this.isCostumize = !this.isCostumize;
