@@ -1,4 +1,4 @@
-import { httpService } from './httpService';
+import { httpService } from './http.service';
 
 export const giphyService = {
   getTrending,
@@ -17,7 +17,7 @@ async function getTrending() {
 
 async function search(searchTerm) {
   try {
-    const res = await httpService.get(`giphy/search?q=${searchTerm}`);
+    const res = await httpService.get(`giphy/search?=${searchTerm}`);
     return res.map((item) => item.images.downsized.url);
   } catch (err) {
     console.log(err);

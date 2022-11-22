@@ -1,31 +1,43 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
-import homePage from '../views/home-view.vue';
-import mainBoard from '../views/main-board.vue';
-import welcomePage from '../views/welcome-page.vue';
-import loginApp from '../views/login-app.vue';
+import { createRouter, createWebHashHistory } from "vue-router";
+import homeView from "../views/home-view.vue";
+import boardView from "../views/board-view.vue";
+import welcomeView from "../views/welcome-view.vue";
+import authView from "../views/auth-view.vue";
+import logIn from "../components/auth/log-in.vue";
+import signUp from "../components/auth/sign-up.vue";
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/welcome',
-      name: 'welcome',
-      component: welcomePage,
+      path: "/auth",
+      name: "auth",
+      component: authView,
+      children: [
+        {
+          path: "login",
+          component: logIn,
+        },
+        {
+          path: "signup",
+          component: signUp,
+        },
+      ],
     },
     {
-      path: '/login',
-      name: 'login',
-      component: loginApp,
+      path: "/welcome",
+      name: "welcome",
+      component: welcomeView,
     },
     {
-      path: '/',
-      name: 'home',
-      component: homePage,
+      path: "/",
+      name: "home",
+      component: homeView,
     },
     {
-      path: '/board/:boardId',
-      name: 'board',
-      component: mainBoard,
+      path: "/board/:boardId",
+      name: "board",
+      component: boardView,
     },
   ],
 });

@@ -4,7 +4,7 @@
     <div>
       <div class="activity-header">
         <span class="member-name">{{ info.byMember.fullname }}</span>
-        <span class="action"> {{ info.action }}</span>
+        <span class="action"> {{ info.action }} in {{info.task.title}}</span>
       </div>
       <span class="time">{{ createdAt }} ago</span>
     </div>

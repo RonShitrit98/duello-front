@@ -7,8 +7,8 @@
                     v-if="imgs"
                     class="img-box"
                     v-for="img in imgs"
-                    :key="img"
-                    :src="img"
+                    :key="img.thumb"
+                    :src="img.thumb"
                     @click="setBc(img)"
                 />
             </div>
@@ -29,7 +29,6 @@ export default {
     async created() {
         const imgs = await designService.getImgs(100, 'desktop wallpaper', 'regular')
         this.imgs = imgs
-        console.log(imgs)
     },
     methods: {
         async searchImgs() {

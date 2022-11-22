@@ -8,7 +8,12 @@
     <div class="container">
       <form @submit.prevent="addChecklist" class="add-checklist">
         <label for="title" class="input-label">Title</label>
-        <input type="text" id="title" v-model="newChecklist.title" ref="myInput" />
+        <input
+          type="text"
+          id="title"
+          v-model="newChecklist.title"
+          ref="myInput"
+        />
 
         <label class="input-label">Copy items from…</label>
 
@@ -26,9 +31,9 @@
   </section>
 </template>
 <script>
-import { taskService } from '../../services/task.service';
-import { utilService } from '../../services/util.service';
-import iconBase from '../icon-base.vue';
+import { taskService } from "../../services/task.service";
+import { utilService } from "../../services/util.service";
+import iconBase from "../icon-base.vue";
 
 export default {
   props: {
@@ -51,24 +56,32 @@ export default {
     addChecklist() {
       if (!this.newChecklist.title) return;
       this.task.checklists.push(this.newChecklist);
+      this.$emit("updateTask", this.task, this.newActiv);
       this.close();
-      this.newChecklist = taskService.getEmptyChecklist()
-      this.$emit('updateTask', this.task);
+      this.newChecklist = taskService.getEmptyChecklist();
       // const todos = this.selectedChecklist === null ? [] : this.selectedChecklist.todos;
       // this.$emit('addChecklist', { id: utilService.makeId(), title: this.title, todos });
       // this.selectedChecklist = null;
     },
     toggleFocus(ev) {
-      if (ev.type === 'mousedown' && !this.title) {
-        this.$refs.myInput.style.backgroundColor = '#fafbfc';
-        this.$refs.myInput.style.boxShadow = 'none';
+      if (ev.type === "mousedown" && !this.title) {
+        this.$refs.myInput.style.backgroundColor = "#fafbfc";
+        this.$refs.myInput.style.boxShadow = "none";
       } else {
-        this.$refs.myInput.style.backgroundColor = '#fff';
-        this.$refs.myInput.style.boxShadow = 'inset 0 0 0 2px #0079bf';
+        this.$refs.myInput.style.backgroundColor = "#fff";
+        this.$refs.myInput.style.boxShadow = "inset 0 0 0 2px #0079bf";
       }
     },
     close() {
-      this.$emit('close');
+      this.$emit("close");
+    },
+  },
+  computed: {
+    newActiv() {
+      return {
+        type: "activity-cmp",
+        action: `added ${this.newChecklist.title}`,
+      };
     },
   },
   watch: {

@@ -1,7 +1,7 @@
-import { httpService } from '../services/httpService.js';
-import { socketService } from './socket.service.js';
-import { utilService } from './util.service';
-import { nextTick } from 'vue';
+import { httpService } from "../services/http.service.js";
+// import { socketService } from './socket.service.js';
+import { utilService } from "./util.service";
+import { nextTick } from "vue";
 
 export const boardService = {
   query,
@@ -20,11 +20,12 @@ export const boardService = {
   getEmptyActivity,
 };
 
-var newBoard = '';
+var newBoard = "";
 
-async function query(filterBy) {
+async function query(filterBy = {}) {
   try {
-    return httpService.get('board');
+    console.log(filterBy);
+    return httpService.get("board", filterBy);
 
     // var queryStr = !filterBy ? '' : `?userId=${filterBy.userId}`;
     // return httpService.get(BOARD_URL + queryStr);
@@ -58,7 +59,6 @@ async function addGroup(title, boardId) {
   return group;
 }
 
-
 async function updateGroup(newGroup, boardId) {
   const board = await _getBoard(boardId);
   const groupIdx = board.groups.findIndex((group) => group.id === newGroup.id);
@@ -81,7 +81,7 @@ async function updateAfterTaskDrag(group, board) {
   const groupIdx = board.groups.findIndex((grp) => grp.id === group.id);
   if (board.groups[groupIdx].tasks.length !== group.tasks.length && newBoard) {
     newBoard.groups[groupIdx] = group;
-    newBoard = '';
+    newBoard = "";
   } else {
     board.groups[groupIdx] = group;
     newBoard = board;
@@ -125,19 +125,19 @@ async function createBoardLabel(labelData, board) {
 
 async function addNewBoard(board) {
   board.createdAt = Date.now();
-  return await httpService.post('board', board);
+  return await httpService.post("board", board);
 }
 
 function getEmptyBoard() {
   return {
-    title: '',
-    subName: '',
+    title: "",
+    subName: "",
     createdAt: null,
     createdBy: null,
     style: {
       backgroundImg: null,
       color: null,
-      type: 'img',
+      type: "img",
     },
     labels: _createLabels(),
     members: [],
@@ -149,17 +149,17 @@ function getEmptyBoard() {
 function getEmptyActivity() {
   return {
     id: utilService.makeId(),
-    type: '',
-    action: '',
+    type: "",
+    action: "",
     createdAt: Date.now(),
     byMember: {
-      _id: '',
+      _id: "",
       imgUrl: null,
-      fullname: '',
+      fullname: "",
     },
     task: {
-      id: '',
-      title: '',
+      id: "",
+      title: "",
     },
   };
 }
@@ -167,34 +167,34 @@ function getEmptyActivity() {
 function _createLabels() {
   return [
     {
-      title: 'urgent',
-      id: 'l101',
-      color: '#61bd4f',
+      title: "urgent",
+      id: "l101",
+      color: "#61bd4f",
     },
     {
-      title: 'doing',
-      id: 'l102',
-      color: '#f2d600',
+      title: "doing",
+      id: "l102",
+      color: "#f2d600",
     },
     {
-      title: '',
+      title: "",
       id: utilService.makeId(),
-      color: '#ff9f1a',
+      color: "#ff9f1a",
     },
     {
-      title: '',
+      title: "",
       id: utilService.makeId(),
-      color: '#eb5a46',
+      color: "#eb5a46",
     },
     {
-      title: '',
+      title: "",
       id: utilService.makeId(),
-      color: '#c377e0',
+      color: "#c377e0",
     },
     {
-      title: '',
+      title: "",
       id: utilService.makeId(),
-      color: '#0079bf',
+      color: "#0079bf",
     },
   ];
 }
@@ -204,7 +204,7 @@ async function _getBoard(boardId) {
 }
 
 async function updateBoard(newUpdated) {
-  socketService.emit('update', newUpdated);
+  // socketService.emit('update', newUpdated);
 
   return await httpService.put(`board/${newUpdated._id}`, newUpdated);
 }

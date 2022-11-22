@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import commentCmp from '../comment-cmp.vue';
+import commentCmp from '../dynamic-components/comment-cmp.vue';
 import activityCmp from '../dynamic-components/activity-cmp.vue';
 
 export default {

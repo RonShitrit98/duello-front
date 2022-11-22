@@ -1,7 +1,6 @@
-import { storageService } from './storage.service';
 import { boardService } from './board.service';
 import { utilService } from './util.service';
-import { httpService } from './httpService';
+import { httpService } from './http.service';
 
 export const taskService = {
   addTask,

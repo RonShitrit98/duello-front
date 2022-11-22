@@ -4,6 +4,7 @@ export const utilService = {
   saveToSessionStorage,
   applyDrag,
   spliceItem,
+  spliceItem2,
   findItem,
 };
 function makeId(length = 8) {
@@ -41,7 +42,16 @@ function applyDrag(arr, dragResult) {
 }
 
 function spliceItem(itemId, itemList, replace = false) {
+  console.log(itemId, itemList)
   const idx = itemList.findIndex((item) => itemId === item.id);
+  if (idx < 0) return
+  else if (!replace) itemList.splice(idx, 1);
+  else itemList.splice(idx, 1, replace);
+  return itemList;
+}
+function spliceItem2(itemId, itemList, replace = false) {
+  console.log(itemId, itemList)
+  const idx = itemList.findIndex((item) => itemId === item._id);
   if (idx < 0) return
   else if (!replace) itemList.splice(idx, 1);
   else itemList.splice(idx, 1, replace);

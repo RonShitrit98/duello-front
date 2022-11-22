@@ -7,10 +7,18 @@
       </button>
     </header>
     <div class="main-content">
-      <input type="search" placeholder="Search members..." v-model="searchMember" />
+      <input
+        type="search"
+        placeholder="Search members..."
+        v-model="searchMember"
+      />
       <h2>Board members</h2>
       <ul class="memeber-list">
-        <li v-for="member in filteredMembers" :key="member.id" @click="addMember(member)">
+        <li
+          v-for="member in filteredMembers"
+          :key="member.id"
+          @click="toggleMember(member)"
+        >
           <img :src="member.imgUrl" />
           <span class="member-name">{{ member.fullname }}</span>
           <label v-if="test(member._id)"><icon-base iconName="check" /></label>
@@ -20,7 +28,8 @@
   </section>
 </template>
 <script>
-import iconBase from '../icon-base.vue';
+import { utilService } from "../../services/util.service";
+import iconBase from "../icon-base.vue";
 export default {
   props: {
     board: {
@@ -34,15 +43,30 @@ export default {
   },
   data() {
     return {
-      searchMember: '',
+      searchMember: "",
     };
   },
   methods: {
     close() {
-      this.$emit('close');
+      this.$emit("close");
     },
-    addMember(member) {
-      this.$emit('addMember', member);
+    toggleMember(member) {
+      var activity = {};
+      if (this.task.members.every((mmbr) => member._id != mmbr._id)) {
+        this.task.members.unshift(member);
+        activity = {
+          type: "activity-cmp",
+          action: `assigned ${member.fullname}`,
+        };
+      } else {
+        utilService.spliceItem2(member._id, this.task.members);
+        console.log(this.task.members)
+        activity = {
+          type: "activity-cmp",
+          action: `uassigned ${member.fullname}`,
+        };
+      }
+      this.$emit("updateTask", this.task, activity);
     },
     isMemberSelected(memberId) {
       return this.task.members.some((member) => member.id === memberId);
@@ -54,7 +78,9 @@ export default {
   computed: {
     filteredMembers() {
       return this.board.members.filter((member) => {
-        return member.fullname.toLowerCase().includes(this.searchMember.trim().toLowerCase());
+        return member.fullname
+          .toLowerCase()
+          .includes(this.searchMember.trim().toLowerCase());
       });
     },
   },

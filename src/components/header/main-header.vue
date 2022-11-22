@@ -1,5 +1,8 @@
 <template>
-  <section :class="['main-header', txtClr]" :style="`background-color: ${bcg};`">
+  <section
+    :class="['main-header', txtClr]"
+    :style="`background-color: ${bcg};`"
+  >
     <nav>
       <div class="buttons">
         <!-- <button>
@@ -45,10 +48,14 @@
         <label @click="toggleUserDetails" v-if="user" class="user-icon">
           <img :src="user.imgUrl" referrerpolicy="no-referrer" />
         </label>
-        <!-- <button @click="signOut">logout</button> -->
+        <!-- <button @click="logout">logout</button> -->
       </div>
     </nav>
-    <create-board v-if="isCreateBoard" @closeModal="toggleCreateModal" @create="createBoard" />
+    <create-board
+      v-if="isCreateBoard"
+      @closeModal="toggleCreateModal"
+      @create="createBoard"
+    />
   </section>
   <section v-if="isUserDetails" class="main-user-modal">
     <div class="modal-header">
@@ -66,21 +73,24 @@
             <h5>{{ user.username }}</h5>
           </div>
         </div>
-        <button @click="signOut">Log out</button>
+        <button @click="logout">Log out</button>
       </div>
     </div>
   </section>
 </template>
 
 <script>
-import { useBoardStore } from '../../store/board.store';
-import iconBase from '../icon-base.vue';
-import createBoard from './create-board.vue';
+import { useBoardStore } from "../../stores/board.store";
+import { useUserStore } from "../../stores/user.store";
+import iconBase from "../icon-base.vue";
+import createBoard from "../create-board.vue";
 export default {
   setup() {
     const boardStore = useBoardStore();
+    const userStore = useUserStore();
     return {
       boardStore,
+      userStore,
     };
   },
   data() {
@@ -90,14 +100,16 @@ export default {
     };
   },
   methods: {
-    signOut() {
+    async logout() {
+      await this.userStore.logout();
+      this.$router.replace('/welcome');
       // var auth2 = gapi.auth2.getAuthInstance();
       // auth2.signOut().then(function () {
       //   console.log('User signed out.');
       // });
     },
     goHome() {
-      this.$router.push({ path: '/' });
+      this.$router.push({ path: "/" });
       // this.$store.commit('resetBcg');
     },
     toggleCreateModal() {
@@ -106,7 +118,9 @@ export default {
     async createBoard(board) {
       try {
         await this.boardStore.createBoard(board);
-        this.$router.replace({ path: `/board/${this.boardStore.currBoard._id}` });
+        this.$router.replace({
+          path: `/board/${this.boardStore.currBoard._id}`,
+        });
       } catch (error) {
         console.log(error);
       }
@@ -117,6 +131,7 @@ export default {
   },
   computed: {
     user() {
+      return this.userStore.currUser;
       // return this.$store.getters.user;
     },
     bcg() {
@@ -124,8 +139,8 @@ export default {
     },
     txtClr() {
       const isDark = this.boardStore.style.isDark;
-      if (!isDark) return 'dark-bcg';
-      else return 'light-bcg';
+      if (!isDark) return "dark-bcg";
+      else return "light-bcg";
     },
   },
   async created() {},

@@ -11,7 +11,12 @@
         <span v-if="loading">Uploading Image...</span>
         <div v-else>
           Computer
-          <input id="uploadImg" type="file" @change="attachLink('image', $event)" hidden />
+          <input
+            id="uploadImg"
+            type="file"
+            @change="attachLink('image', $event)"
+            hidden
+          />
         </div>
       </label>
     </div>
@@ -27,8 +32,8 @@
   </section>
 </template>
 <script>
-import iconBase from '../icon-base.vue';
-import { imgService } from '../../services/imgUpload.service.js';
+import iconBase from "../icon-base.vue";
+import { imgService } from "../../services/imgUpload.service.js";
 export default {
   props: {
     task: {
@@ -42,15 +47,15 @@ export default {
   data() {
     return {
       attachment: {
-        linkName: '',
-        url: '',
+        linkName: "",
+        url: "",
       },
       loading: false,
     };
   },
   methods: {
     async attachLink(type, ev) {
-      if (type === 'image') {
+      if (type === "image") {
         this.loading = true;
         this.url = await imgService.uploadImg(ev.target.files);
         this.loading = false;
@@ -64,9 +69,14 @@ export default {
         created: new Date().getTime(),
       };
       this.task.attachments.push(attachment);
-      this.$emit('updateTask', this.task);
+      this.$emit("updateTask", this.task, this.newActiv(type));
       this.close();
-      // this.$emit('saveAttachment', attachment);
+    },
+    newActiv(desc) {
+      return {
+        type: "activity-cmp",
+        action: `attached ${desc}`,
+      };
     },
     // async onUploadImg(ev) {
     //   this.loading = true;
@@ -97,7 +107,7 @@ export default {
       // this.$emit('updateTask', this.task);
     },
     close() {
-      this.$emit('close');
+      this.$emit("close");
     },
   },
   components: {

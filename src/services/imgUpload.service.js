@@ -1,6 +1,6 @@
 import Axios from "axios";
 
-import { httpService } from './httpService';
+import { httpService } from './http.service';
 
 export const imgService = {
   uploadImg,

@@ -1,7 +1,6 @@
-import { storageService } from './storage.service.js';
 import { utilService } from './util.service.js';
 import axios from 'axios';
-import FastAverageColor from 'fast-average-color';
+import {FastAverageColor} from 'fast-average-color';
 
 const DESIGN = {
   imgs: await getImgs(),

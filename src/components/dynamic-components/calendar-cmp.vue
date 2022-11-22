@@ -23,14 +23,20 @@ export default {
   },
   methods: {
     saveDate() {
-      this.$emit('updateTask', this.task);
+      this.$emit('updateTask', this.task, this.newActiv('save', this.task.dueDate));
       this.close();
     },
 
     removeDate() {
       this.task.dueDate = null;
-      this.$emit('updateTask', this.task);
+      this.$emit('updateTask', this.task, this.newActiv('remove'));
       this.close();
+    },
+    newActiv(actionType, desc) {
+      return {
+        type: "activity-cmp",
+        action: actionType==='save'? `set due date to ${desc}` : `removed the due date`,
+      };
     },
     close() {
       this.$emit('close');
