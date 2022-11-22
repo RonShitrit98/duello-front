@@ -130,7 +130,7 @@
 import { boardService } from "../services/board.service";
 import { designService } from "../services/design.services";
 import iconBase from "./icon-base.vue";
-import { isDarkColor } from "is-dark-color";
+import  isDarkColor  from "is-dark-color";
 
 export default {
   data() {
@@ -145,9 +145,7 @@ export default {
   },
   async created() {
     this.searchImg = await designService.getImgs(100, "desktop");
-    console.log(this.searchImg);
     this.boardToEdit.style.backgroundImg = this.design.imgs[0];
-    console.log(this.boardToEdit.style);
   },
   mounted() {
     this.$refs.title.focus();
