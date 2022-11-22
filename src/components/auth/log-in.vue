@@ -34,6 +34,7 @@
 </template>
 
 <script>
+  import {getGoogleUrl} from '../../services/google.service'
 export default {
   data() {
     return {
@@ -46,6 +47,11 @@ export default {
   methods: {
     login() {
       this.$emit("login", this.creds);
+    },
+  },
+  computed: {
+    signupWithGoogle() {
+      return getGoogleUrl("/");
     },
   },
 };
