@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { useUserStore } from "./user.store";
 import { boardService } from "../services/board.service";
+import { isThisSecond } from "date-fns";
 export const useBoardStore = defineStore("board", {
   state: () => {
     return {
@@ -71,6 +72,10 @@ export const useBoardStore = defineStore("board", {
     },
     resetBoard() {
       this.board = null;
+    },
+    toggleLabels() {
+      this.board.isLabelExpanded = !this.board.isLabelExpanded;
+      this.updateBoard(this.board)
     },
     _setBoard(board) {
       this.board = board;

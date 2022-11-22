@@ -48,9 +48,6 @@
                 ]"
                 :task="task"
                 :group="group"
-                @editTask="updateTask"
-                @removeTask="removeTask"
-                @toggleLabelsExpanded="toggleLabelsExpanded"
               ></task-preview>
               <span class="bcg-helper" v-if="task.style.cover.style === 'background'"></span>
             </li>
@@ -178,11 +175,6 @@ export default {
     onResize() {
       if (this.isEditModal) this.isEditModal = false;
     },
-    toggleLabelsExpanded() {
-      // this.$store.dispatch({
-      //   type: 'toggleLabelsExpanded',
-      // });
-    },
     openModalDetails(taskId) {
       this.$emit('onOpen', taskId, this.group.id);
     },
@@ -205,11 +197,6 @@ export default {
     },
     removeTask(taskId, groupId) {
       this.$emit('removeTask', taskId, groupId);
-    },
-    updateTask(task) {
-      console.log(task);
-      // const groupId = this.group.id;
-      // this.$emit('updateTask', taskPartial, groupId);
     },
     createTask() {
       this.closeEditModal();

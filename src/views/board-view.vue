@@ -27,7 +27,6 @@
               @editGroup="editGroup"
               @removeGroup="removeGroup"
               @removeTask="removeTask"
-              @updateTask="updateTask"
               @addTask="addTask"
               @onOpen="openModal"
               @quickEdit="

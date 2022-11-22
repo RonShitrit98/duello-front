@@ -9,17 +9,35 @@
         :class="labelsExpanded ? 'expand' : 'shrink'"
         @click="toggleLabelsExpand"
       >
-        <span :class="labelsExpanded ? 'show' : 'hide'">{{ label.title }}&nbsp;</span>
+        <span :class="labelsExpanded ? 'show' : 'hide'"
+          >{{ label.title }}&nbsp;</span
+        >
       </div>
     </div>
-    <textarea class="isEditing" v-model="task.title" v-if="canEditTitle" :autofocus="true"></textarea>
-    <textarea v-else :value="taskTitle" :disabled="true" ></textarea>
+    <textarea
+      class="isEditing"
+      v-model="task.title"
+      v-if="canEditTitle"
+      :autofocus="true"
+    ></textarea>
+    <textarea v-else :value="taskTitle" :disabled="true"></textarea>
     <div v-if="!isCoverBcg" class="task-extras">
       <div class="left">
-        <span v-if="task.dueDate" :class="['due-date', isDuePassed, isDueCompleted]">
+        <span
+          v-if="task.dueDate"
+          :class="['due-date', isDuePassed, isDueCompleted]"
+        >
           <icon-base class="due-icon-clock" iconName="clock" />
-          <icon-base class="due-icon-checked" @click.stop="isDueComplete = !isDueComplete" iconName="checked" />
-          <icon-base class="due-icon-unchecked" @click.stop="isDueComplete = !isDueComplete" iconName="unchecked" />
+          <icon-base
+            class="due-icon-checked"
+            @click.stop="isDueComplete = !isDueComplete"
+            iconName="checked"
+          />
+          <icon-base
+            class="due-icon-unchecked"
+            @click.stop="isDueComplete = !isDueComplete"
+            iconName="unchecked"
+          />
           {{ formatDate(this.task.dueDate) }}
         </span>
         <span v-if="numberOfAttachments > 0" class="number-of-attachments">
@@ -48,15 +66,19 @@
       </div>
     </div>
     <div v-if="!isCoverBcg" class="member-list">
-      <img v-for="member in task.members" :key="member._id" :src="member.imgUrl" />
+      <img
+        v-for="member in task.members"
+        :key="member._id"
+        :src="member.imgUrl"
+      />
     </div>
   </section>
 </template>
 
 <script>
-import { isBefore } from 'date-fns';
-import { useBoardStore } from '../../stores/board.store';
-import iconBase from '../icon-base.vue';
+import { isBefore } from "date-fns";
+import { useBoardStore } from "../../stores/board.store";
+import iconBase from "../icon-base.vue";
 // import resizableTextarea from './resizable-textarea.vue';
 
 export default {
@@ -93,25 +115,27 @@ export default {
       if (!isPassed) {
         const diff = +date - now;
         if (diff < 86400000 && diff > 0) {
-          this.dueStatus = 'is-due-soon';
-        } else this.dueStatus = '';
-      } else this.dueStatus = 'is-due-past';
+          this.dueStatus = "is-due-soon";
+        } else this.dueStatus = "";
+      } else this.dueStatus = "is-due-past";
 
-      return date.toLocaleString('default', {
-        month: 'short',
-        day: 'numeric',
+      return date.toLocaleString("default", {
+        month: "short",
+        day: "numeric",
       });
     },
     toggleLabelsExpand(e) {
       e.stopPropagation();
-      this.$emit('toggleLabelsExpanded');
-    },
+      this.boardStore.toggleLabels()
+    //   this.$emit("toggleLabelsExpanded");
+    // },
     // async saveEdit() {
     //   console.log(this.task)
     //   // this.taskToEditPartial.title = txt;
     //   this.$emit('editTask', this.task);
     // },
   },
+},
   computed: {
     numberOfAttachments() {
       return this.task.attachments.length;
@@ -120,7 +144,7 @@ export default {
       return this.task.comments.length;
     },
     labelsExpanded() {
-      // return this.$store.getters.labelsExpanded;
+      return this.boardStore.currBoard.isLabelExpanded;
     },
     labels() {
       return this.task.labelIds.map((id) => {
@@ -132,12 +156,12 @@ export default {
       return true;
     },
     coverStyle() {
-      if (this.task.style.cover.type === 'color' && this.isCoverBcg) {
+      if (this.task.style.cover.type === "color" && this.isCoverBcg) {
         return `background-color: ${this.task.style.cover.color}; height: 32px`;
-      } else return '';
+      } else return "";
     },
     isCoverBcg() {
-      if (this.task.style.cover.style === 'background') return true;
+      if (this.task.style.cover.style === "background") return true;
       else return false;
     },
     checklistStatus() {
@@ -153,11 +177,11 @@ export default {
       const done = this.task.checklist[0].todos.filter((todo) => todo.isDone);
       if (done.length === this.task.checklist[0].todos.length) return true;
 
-      return '';
+      return "";
       // }
     },
     isDueCompleted() {
-      return this.isDueComplete ? 'is-due-complete' : 'is-due-future';
+      return this.isDueComplete ? "is-due-complete" : "is-due-future";
     },
     isDuePassed() {
       return this.dueStatus;
