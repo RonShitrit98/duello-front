@@ -41,6 +41,10 @@ export default {
       type: Object,
       required: true,
     },
+    isAllowed: {
+      yupe: Boolean,
+      required: true,
+    },
   },
   data() {
     return {
@@ -54,7 +58,7 @@ export default {
   },
   methods: {
     addChecklist() {
-      if (!this.newChecklist.title) return;
+      if (!this.newChecklist.title || !this.isAllowed) return;
       this.task.checklists.push(this.newChecklist);
       this.$emit("updateTask", this.task, this.newActiv);
       this.close();

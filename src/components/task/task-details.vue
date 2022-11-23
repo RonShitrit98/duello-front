@@ -76,7 +76,11 @@
               </span>
             </div>
           </div>
-          <description-details :task="task" @save="saveDesc" :isAllowed="isAllowed"/>
+          <description-details
+            :task="task"
+            @save="saveDesc"
+            :isAllowed="isAllowed"
+          />
           <attachment-details :attachments="task.attachments" />
           <checklist-details
             v-for="checklist in task.checklists"
@@ -104,6 +108,7 @@
         />
         <div class="dynamic-cmp">
           <component
+            :isAllowed="isAllowed"
             :is="cmp"
             :board="board"
             :task="task"
@@ -181,7 +186,6 @@ export default {
   },
   methods: {
     async updateTask(task = this.task, activity) {
-
       if (!this.isAllowed) return;
       try {
         utilService.spliceItem(task.id, this.group.tasks, task);
@@ -455,11 +459,11 @@ export default {
       return this.boardStore.currBoard;
     },
     isAllowed() {
-     console.log(this.boardStore.isUserAllowed)
+      console.log(this.boardStore.isUserAllowed);
       return this.boardStore.isUserAllowed;
     },
     isMember() {
-      if(!this.loggedinUser) return false;
+      if (!this.loggedinUser) return false;
       return this.task.members.some(
         (member) => member._id === this.loggedinUser._id
       );

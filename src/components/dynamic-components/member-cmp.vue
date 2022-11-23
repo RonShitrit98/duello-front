@@ -21,7 +21,9 @@
         >
           <img :src="member.imgUrl" />
           <span class="member-name">{{ member.fullname }}</span>
-          <label v-if="test(member._id)"><icon-base iconName="check" /></label>
+          <label v-if="isMemberSelected(member._id)"
+            ><icon-base iconName="check"
+          /></label>
         </li>
       </ul>
     </div>
@@ -40,6 +42,10 @@ export default {
       type: Object,
       required: true,
     },
+    isAllowed: {
+      type: Boolean,
+      required: true,
+    },
   },
   data() {
     return {
@@ -51,6 +57,7 @@ export default {
       this.$emit("close");
     },
     toggleMember(member) {
+      if(!this.isAllowed) return
       var activity = {};
       if (this.task.members.every((mmbr) => member._id != mmbr._id)) {
         this.task.members.unshift(member);
@@ -60,7 +67,7 @@ export default {
         };
       } else {
         utilService.spliceItem2(member._id, this.task.members);
-        console.log(this.task.members)
+        console.log(this.task.members);
         activity = {
           type: "activity-cmp",
           action: `uassigned ${member.fullname}`,
@@ -69,9 +76,6 @@ export default {
       this.$emit("updateTask", this.task, activity);
     },
     isMemberSelected(memberId) {
-      return this.task.members.some((member) => member.id === memberId);
-    },
-    test(memberId) {
       return this.task.members.some((member) => member._id === memberId);
     },
   },

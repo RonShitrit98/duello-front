@@ -14,7 +14,11 @@
       <input type="text" v-model="editingLabel.title" />
       <h2>Select a color</h2>
       <ul class="color-options">
-        <li v-for="option in labelOptions" @click="updateColor(option)" :style="'background-color:' + option">
+        <li
+          v-for="option in labelOptions"
+          @click="updateColor(option)"
+          :style="'background-color:' + option"
+        >
           <icon-base iconName="check" v-if="editingLabel.color === option" />
         </li>
       </ul>
@@ -40,7 +44,11 @@
       <input type="text" v-model="creatingLabel.title" />
       <h2>Select a color</h2>
       <ul class="color-options">
-        <li v-for="option in labelOptions" @click="setColor(option)" :style="'background-color:' + option">
+        <li
+          v-for="option in labelOptions"
+          @click="setColor(option)"
+          :style="'background-color:' + option"
+        >
           <icon-base iconName="check" v-if="creatingLabel.color === option" />
         </li>
       </ul>
@@ -60,7 +68,11 @@
       <h2>Labels</h2>
       <ul>
         <li v-for="label in filteredLabels" :key="label.id">
-          <div @click="toggleLabel(label)" class="edit-label" :style="'background-color:' + label.color">
+          <div
+            @click="toggleLabel(label)"
+            class="edit-label"
+            :style="'background-color:' + label.color"
+          >
             <span>{{ label.title }}</span>
             <icon-base iconName="check" v-if="isLabelSelected(label)" />
           </div>
@@ -74,9 +86,9 @@
   </section>
 </template>
 <script>
-import { utilService } from '../../services/util.service';
-import { taskService } from '../../services/task.service';
-import iconBase from '../icon-base.vue';
+import { utilService } from "../../services/util.service";
+import { taskService } from "../../services/task.service";
+import iconBase from "../icon-base.vue";
 export default {
   components: { iconBase },
   props: {
@@ -91,33 +103,36 @@ export default {
   },
   data() {
     return {
-      search: '',
+      search: "",
       editingLabel: null,
       creatingLabel: taskService.getEmptyLabel(),
       isCreatingLabel: false,
       labelOptions: [
-        '#61bd4f',
-        '#f2d600',
-        '#ff9f1a',
-        '#eb5a46',
-        '#c377e0',
-        '#0079bf',
-        '#00c2e0',
-        '#51e898',
-        '#ff78cb',
-        '#344563',
+        "#61bd4f",
+        "#f2d600",
+        "#ff9f1a",
+        "#eb5a46",
+        "#c377e0",
+        "#0079bf",
+        "#00c2e0",
+        "#51e898",
+        "#ff78cb",
+        "#344563",
       ],
     };
   },
   methods: {
     updateColor(option) {
+      if (!this.isAllowed) return;
       this.editingLabel.color = option;
     },
     setColor(option) {
+      if (!this.isAllowed) return;
       this.creatingLabel.color = option;
     },
     updateLabel() {
-      this.$emit('updateBoard', this.board);
+      if (!this.isAllowed) return;
+      this.$emit("updateBoard", this.board);
       this.goBack();
       // this.$emit('updateBoardLabel', {
       //   ...this.editingLabel.label,
@@ -127,15 +142,17 @@ export default {
       // this.editingLabel = null;
     },
     deleteLabel() {
+      if (!this.isAllowed) return;
       utilService.spliceItem(this.editingLabel.id, this.board.labels);
-      this.$emit('updateBoard', this.board);
+      this.$emit("updateBoard", this.board);
       this.goBack();
       // this.$emit('deleteBoardLabel', this.editingLabel.label.id);
       // this.editingLabel = null;
     },
     createLabel() {
+      if (!this.isAllowed) return;
       this.board.labels.push(this.creatingLabel);
-      this.$emit('updateBoard', this.board);
+      this.$emit("updateBoard", this.board);
       this.goBack();
       // this.$emit('createBoardLabel', {
       //   title: this.creatingLabel.title,
@@ -149,23 +166,28 @@ export default {
       this.isCreatingLabel = false;
     },
     edit(label) {
+      if (!this.isAllowed) return;
       this.editingLabel = label;
     },
     create() {
+      if (!this.isAllowed) return;
       this.isCreatingLabel = true;
     },
     toggleLabel(label) {
+      if (!this.isAllowed) return;
       if (this.task.labelIds.includes(label.id)) {
-        const idx = this.task.labelIds.findIndex((labelId) => labelId === label.id);
+        const idx = this.task.labelIds.findIndex(
+          (labelId) => labelId === label.id
+        );
         this.task.labelIds.splice(idx, 1);
       } else {
         this.task.labelIds.unshift(label.id);
       }
       // console.log(this.task)
-      this.$emit('updateTask', this.task);
+      this.$emit("updateTask", this.task);
     },
     close() {
-      this.$emit('close');
+      this.$emit("close");
     },
     isLabelSelected(label) {
       return this.task.labelIds.includes(label.id);
@@ -173,12 +195,11 @@ export default {
   },
   computed: {
     filteredLabels() {
-      console.log(this.board.labels);
-
-      return this.board.labels;
-      // return this.board.labels.filter((label) => {
-      //   return label.title.toLowerCase().includes(this.search.trim().toLowerCase());
-      // });
+      return this.board.labels.filter((label) => {
+        return label.title
+          .toLowerCase()
+          .includes(this.search.trim().toLowerCase());
+      });
     },
   },
 };

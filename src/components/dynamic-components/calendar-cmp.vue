@@ -20,14 +20,20 @@ export default {
       type: String,
       required: true,
     },
+    isAllowed: {
+      yupe: Boolean,
+      required: true,
+    },
   },
   methods: {
     saveDate() {
+      if(!this.isAllowed) return
       this.$emit('updateTask', this.task, this.newActiv('save', this.task.dueDate));
       this.close();
     },
 
     removeDate() {
+      if(!this.isAllowed) return
       this.task.dueDate = null;
       this.$emit('updateTask', this.task, this.newActiv('remove'));
       this.close();

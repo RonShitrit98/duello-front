@@ -158,6 +158,10 @@ export default {
       type: Object,
       required: true,
     },
+    isAllowed: {
+      yupe: Boolean,
+      required: true,
+    },
   },
   data() {
     return {
@@ -187,6 +191,7 @@ export default {
   components: { iconBase },
   methods: {
     setCoverColor(color) {
+      if(!this.isAllowed) return
       if (color === this.task.style.cover.color) {
         this.resetCover();
       } else {
@@ -199,6 +204,7 @@ export default {
       this.$emit("updateTask", this.task);
     },
     async setCoverImg(imgUrl) {
+      if(!this.isAllowed) return
       const color = await designService.getAvgColor(imgUrl);
       if (imgUrl === this.task.style.cover.imgUrl) {
         this.resetCover();
@@ -218,6 +224,7 @@ export default {
       }
     },
     setCoverStyle(coverStyle) {
+      if(!this.isAllowed) return
       this.task.style.cover.style = coverStyle;
       this.$emit("updateTask", this.task);
     },
@@ -229,6 +236,7 @@ export default {
       this.$emit("close");
     },
     resetCover() {
+      if(!this.isAllowed) return
       this.task.style.cover.imgUrl = "";
       this.task.style.cover.color = "";
       this.task.style.cover.type = "";
@@ -254,6 +262,7 @@ export default {
       this.imgs = imgs;
     },
     async onUploadImg(ev) {
+      if(!this.isAllowed) return
       this.loading = true;
       this.loading = true;
       const attachment = {

@@ -40,6 +40,10 @@ export default {
       type: Object,
       required: true,
     },
+    isAllowed: {
+      yupe: Boolean,
+      required: true,
+    },
   },
   created() {
     console.log(this.task);
@@ -55,6 +59,7 @@ export default {
   },
   methods: {
     async attachLink(type, ev) {
+      if(!this.isAllowed) return
       if (type === "image") {
         this.loading = true;
         this.url = await imgService.uploadImg(ev.target.files);
