@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { useUserStore } from "./user.store";
 import { boardService } from "../services/board.service";
 import { isThisSecond } from "date-fns";
+import { socketService } from "../services/socket.service";
 export const useBoardStore = defineStore("board", {
   state: () => {
     return {
@@ -32,6 +33,14 @@ export const useBoardStore = defineStore("board", {
         return this.currBoard.style;
       }
     },
+    isUserAllowed() {
+      if (!this.currUser) return false;
+      // console.log(this.board.members.find((member) => member._id === this.currUser._id))
+      // console.log(this.board.members)
+      if (this.board.members.find((member) => member._id === this.currUser._id))
+        return true;
+      return false;
+    },
   },
   actions: {
     async createBoard(board) {
@@ -58,6 +67,7 @@ export const useBoardStore = defineStore("board", {
       this._setBoard(board);
       try {
         const updatedBoard = await boardService.updateBoard(board);
+        socketService.emit("update", updatedBoard);
       } catch (err) {
         console.log(err);
       }
@@ -75,11 +85,10 @@ export const useBoardStore = defineStore("board", {
     },
     toggleLabels() {
       this.board.isLabelExpanded = !this.board.isLabelExpanded;
-      this.updateBoard(this.board)
+      this.updateBoard(this.board);
     },
     _setBoard(board) {
       this.board = board;
-      console.log(this.board);
       // const idx = this.boards.findIndex((b) => board._id === b._id);
       // if (idx < 0) this.boards.push(board);
       // else this.boards.splice(idx, 1, board);

@@ -14,7 +14,7 @@
             <li class="navigation-item" @click="toggleBcSelect">
               <img
                 v-if="boardStyle.type === 'img'"
-                :src="boardStyle.backgroundImg"
+                :src="boardStyle.backgroundImg.thumb"
               />
               <img
                 v-else

@@ -6,7 +6,9 @@
       <div class="container">
         <h3>{{ checklist.title }}</h3>
         <div>
-          <button v-if="areDone" @click.stop="isFilter = !isFilter">{{ showHide }}</button>
+          <button v-if="areDone" @click.stop="isFilter = !isFilter">
+            {{ showHide }}
+          </button>
           <button @click.stop="isRemoveCheck = !isRemoveCheck">Delete</button>
         </div>
       </div>
@@ -34,7 +36,11 @@
     </div>
 
     <div class="todos-container">
-      <div class="checklist-item" v-for="todo in todosForDisplay" :key="todo.id">
+      <div
+        class="checklist-item"
+        v-for="todo in todosForDisplay"
+        :key="todo.id"
+      >
         <div
           :class="{ checkbox: true, complete: todo.isDone }"
           @click="
@@ -61,7 +67,10 @@
                   <icon-base iconName="member" />
                 </button>
               </div>
-              <div class="todo-controller" @click.stop="setModalType('delete-todo', todo.id)">
+              <div
+                class="todo-controller"
+                @click.stop="setModalType('delete-todo', todo.id)"
+              >
                 <button class="empty">
                   <icon-base iconName="more" />
                 </button>
@@ -78,12 +87,22 @@
           </div>
 
           <div class="add-todo edit-todo" v-if="isEdit && todo.id === target">
-            <resizable-textarea :autofocus="true" :value="todo.title" @valueChange="(value) => (todo.title = value)" />
+            <resizable-textarea
+              :autofocus="true"
+              :value="todo.title"
+              @valueChange="(value) => (todo.title = value)"
+            />
 
             <div class="add-controls">
               <div class="container">
-                <button class="add-btn" @click.stop="saveChecklist">Save</button>
-                <icon-base class="close-btn" iconName="x" @click.stop="toggleEdit('')" />
+                <button class="add-btn" @click.stop="saveChecklist">
+                  Save
+                </button>
+                <icon-base
+                  class="close-btn"
+                  iconName="x"
+                  @click.stop="toggleEdit('')"
+                />
               </div>
 
               <div class="actions">
@@ -99,7 +118,11 @@
 
                 <icon-base class="option" iconName="mention" />
                 <icon-base class="option" iconName="emoji" />
-                <icon-base class="option" iconName="more" @click.stop="setModalType('delete-todo', todo.id)" />
+                <icon-base
+                  class="option"
+                  iconName="more"
+                  @click.stop="setModalType('delete-todo', todo.id)"
+                />
               </div>
             </div>
 
@@ -152,17 +175,21 @@
 </template>
 
 <script>
-import { utilService } from '../../services/util.service';
-import iconBase from '../icon-base.vue';
-import deleteTodo from '../dynamic-components/delete-todo-cmp.vue';
-import deleteModal from './delete-modal.vue';
-import resizableTextarea from '../resizable-textarea.vue';
-import { taskService } from '../../services/task.service';
+import { utilService } from "../../services/util.service";
+import iconBase from "../icon-base.vue";
+import deleteTodo from "../dynamic-components/delete-todo-cmp.vue";
+import deleteModal from "./delete-modal.vue";
+import resizableTextarea from "../resizable-textarea.vue";
+import { taskService } from "../../services/task.service";
 
 export default {
   props: {
     checklist: {
       type: Object,
+      required: true,
+    },
+    isAllowed: {
+      type: Boolean,
       required: true,
     },
   },
@@ -195,6 +222,7 @@ export default {
   },
   methods: {
     toggleEdit(todoId) {
+      if(!this.isAllowed) return
       this.isEdit = !this.isEdit;
       if (this.target) {
         this.target = null;
@@ -203,6 +231,7 @@ export default {
       this.target = todoId;
     },
     setModalType(type, id) {
+      if(!this.isAllowed) return
       if (this.modalType) {
         this.modalType = null;
         this.target = null;
@@ -212,6 +241,7 @@ export default {
       this.modalType = type;
     },
     removeTodo(todoId) {
+      if(!this.isAllowed) return
       utilService.spliceItem(todoId, this.checklist);
       this.saveChecklist();
       // const idx = this.checklist.todos.findIndex((todo) => todo.id === todoId);
@@ -219,6 +249,7 @@ export default {
       // this.$emit('save', { ...this.checklist });
     },
     addTodo() {
+      if(!this.isAllowed) return
       if (!this.todoToAdd.title) return;
       this.checklist.todos.push(this.todoToAdd);
       this.saveChecklist();
@@ -226,14 +257,16 @@ export default {
       this.calcDone();
     },
     saveChecklist() {
-      this.$emit('updateCheck', 'save', this.checklist);
+      if(!this.isAllowed) return
+      this.$emit("updateCheck", "save", this.checklist);
       this.calcDone();
       // if (this.isEdit) this.isEdit = !this.isEdit;
       this.isEdit = !this.isEdit;
     },
     removeChecklist(checklist) {
+      if(!this.isAllowed) return
       this.isRemoveCheck = false;
-      this.$emit('updateCheck', 'remove', checklist);
+      this.$emit("updateCheck", "remove", checklist);
     },
     calcDone() {
       if (!this.checklist.todos.length || !this.checklist.todos) {
@@ -257,11 +290,11 @@ export default {
       } else return this.checklist.todos;
     },
     showHide() {
-      if (!this.isFilter && this.areDone) return 'Hide checked items';
+      if (!this.isFilter && this.areDone) return "Hide checked items";
       else return `Show checked items (${this.areDone})`;
     },
     isCompleted() {
-      return this.percent === 100 ? '#61bd4f' : '#5ba4cf';
+      return this.percent === 100 ? "#61bd4f" : "#5ba4cf";
     },
   },
   components: {

@@ -76,13 +76,14 @@
               </span>
             </div>
           </div>
-          <description-details :task="task" @save="saveDesc" />
+          <description-details :task="task" @save="saveDesc" :isAllowed="isAllowed"/>
           <attachment-details :attachments="task.attachments" />
           <checklist-details
             v-for="checklist in task.checklists"
             :key="checklist.id"
             :checklist="checklist"
             @updateCheck="updateChecklist"
+            :isAllowed="isAllowed"
           />
           <activity-details
             :task="task"
@@ -99,6 +100,7 @@
           @joinTask="joinTask"
           @openModal="selectComponent"
           @removeTask="removeTask"
+          :isAllowed="isAllowed"
         />
         <div class="dynamic-cmp">
           <component
@@ -121,7 +123,7 @@
 import { useBoardStore } from "../../stores/board.store";
 import { utilService } from "../../services/util.service";
 import { boardService } from "../../services/board.service";
-// import { socketService } from '../services/socket.service';
+import { socketService } from "../../services/socket.service";
 import taskDetailsMenu from "./task-details-menu.vue";
 import descriptionDetails from "./description-details.vue";
 import activityDetails from "./activity-details.vue";
@@ -167,20 +169,20 @@ export default {
     };
   },
   async created() {
-    console.log(this.task.style.cover);
     // const user = await this.$store.getters.user;
     // this.loggedinUser = user;
     // const res = await taskService.getById(this.taskId, this.groupId, this.boardId);
     // this.taskToEdit = { ...res.task };
     // this.group = { ...res.group };
-    // socketService.emit('details', this.taskToEdit.id);
-    // socketService.on('update', async (board) => {
+    // socketService.on('update', (board) => {
     // const res = await taskService.getById(this.taskId, this.groupId, this.boardId);
     // this.taskToEdit = { ...res.task };
     // });
   },
   methods: {
     async updateTask(task = this.task, activity) {
+
+      if (!this.isAllowed) return;
       try {
         utilService.spliceItem(task.id, this.group.tasks, task);
         utilService.spliceItem(this.group.id, this.board.groups, this.group);
@@ -191,9 +193,11 @@ export default {
       }
     },
     async updateBoard(board = this.board) {
+      if (!this.isAllowed) return;
       await this.boardStore.updateBoard(board);
     },
     removeTask() {
+      if (!this.isAllowed) return;
       utilService.spliceItem(this.task.id, this.group.tasks);
       this.updateBoard();
       this.closeTaskDetails();
@@ -215,6 +219,7 @@ export default {
       // this.addActivity({ type: 'activity-cmp', action: `updated ${checklist.title} in this card` });
     },
     joinTask() {
+      if (!this.isAllowed) return;
       this.task.members.unshift(this.loggedinUser);
       const activity = {
         type: "activity-cmp",
@@ -223,6 +228,7 @@ export default {
       this.updateTask(this.task, activity);
     },
     deleteComment(commentId) {
+      if (!this.isAllowed) return;
       const comments = this.task.comments.filter((com) => com.id !== commentId);
       this.$store.dispatch({
         type: "updateTask",
@@ -232,6 +238,7 @@ export default {
       this.task.comments = comments;
     },
     editComment(comment) {
+      if (!this.isAllowed) return;
       const comments = this.task.comments.map((com) => {
         if (com.id === comment.id) {
           com = comment;
@@ -269,6 +276,7 @@ export default {
       return new Date(dateString).toDateString();
     },
     saveDesc(task) {
+      if (!this.isAllowed) return;
       this.task = task;
       socketService.emit("loading", { ...this.task });
       this.$store.dispatch({
@@ -446,7 +454,12 @@ export default {
     board() {
       return this.boardStore.currBoard;
     },
+    isAllowed() {
+     console.log(this.boardStore.isUserAllowed)
+      return this.boardStore.isUserAllowed;
+    },
     isMember() {
+      if(!this.loggedinUser) return false;
       return this.task.members.some(
         (member) => member._id === this.loggedinUser._id
       );

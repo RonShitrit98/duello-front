@@ -6,10 +6,18 @@
       <h3>Description</h3>
     </div>
     <div class="description-content">
-      <div class="fake-textarea" v-if="!addDescription && !task.description" @click="addDesc">
+      <div
+        class="fake-textarea"
+        v-if="!addDescription && !task.description"
+        @click="addDesc"
+      >
         Add a more detailed description...
       </div>
-      <div class="fake-textarea description" v-else-if="!addDescription && task.description" @click="addDesc">
+      <div
+        class="fake-textarea description"
+        v-else-if="!addDescription && task.description"
+        @click="addDesc"
+      >
         {{ task.description }}
       </div>
 
@@ -25,7 +33,11 @@
         <div class="actions">
           <button class="save-description" @click="saveDesc">Save</button>
           <button class="close-btn">
-            <img src="../assets/icons/x.svg" alt="close" @click="addDescription = !addDescription" />
+            <img
+              src="../assets/icons/x.svg"
+              alt="close"
+              @click="addDescription = !addDescription"
+            />
           </button>
         </div>
       </div>
@@ -34,14 +46,18 @@
 </template>
 
 <script>
-import iconBase from '../icon-base.vue';
-import resizableTextarea from '../resizable-textarea.vue';
+import iconBase from "../icon-base.vue";
+import resizableTextarea from "../resizable-textarea.vue";
 export default {
   components: { iconBase, resizableTextarea },
   props: {
     task: {
       type: Object,
       required: true,
+    },
+    isAllowed: {
+      type: Boolean,
+      reqired: true,
     },
   },
   data() {
@@ -57,13 +73,16 @@ export default {
   },
   methods: {
     onDescriptionChanged(value) {
+      if(!this.isAllowed) return
       this.task.description = value;
     },
     addDesc() {
+      if(!this.isAllowed) return
       this.addDescription = !this.addDescription;
     },
     saveDesc() {
-      this.$emit('save', { ...this.task });
+      if(!this.isAllowed) return
+      this.$emit("save", { ...this.task });
       this.addDescription = !this.addDescription;
     },
   },

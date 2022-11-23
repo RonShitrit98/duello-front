@@ -65,7 +65,7 @@ import { useBoardStore } from "../stores/board.store";
 import { useUserStore } from "../stores/user.store";
 import { Container, Draggable } from "vue3-smooth-dnd";
 import { utilService } from "../services/util.service";
-// import { socketService } from '../services/socket.service';
+import { socketService } from "../services/socket.service";
 import boardHeader from "../components/header/board-header.vue";
 import mainHeader from "../components/header/main-header.vue";
 import groupList from "../components/board/group-list.vue";
@@ -96,7 +96,9 @@ export default {
   async created() {
     await this.boardStore.loadBoard(this.$route.params.boardId);
     await this.userStore.loadUser();
-    console.log(this.userStore.currUser);
+    socketService.on("updateBoard", (board) => {
+      this.boardStore._setBoard(board);
+    });
     // const board = await this.$store.dispatch({
     //   type: 'loadBoard',
     //   boardId: this.$route.params.boardId,
