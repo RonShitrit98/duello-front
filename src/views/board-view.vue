@@ -22,6 +22,7 @@
               :group="group"
               :board="board"
               :draggingCard="draggingCard"
+              :isAllowed="isAllowed"
               @onDragTask="onDragTask"
               @setDraggedTask="setDraggedTask"
               @editGroup="editGroup"

@@ -24,15 +24,29 @@
           @drag-start="handleDragStart($event, group.id)"
           :get-child-payload="getChildPayload"
         >
-          <Draggable v-for="task in group.tasks" :key="task.id" @click="openModalDetails(task.id)">
+          <Draggable
+            v-for="task in group.tasks"
+            :key="task.id"
+            @click="openModalDetails(task.id)"
+          >
             <li class="task-li">
               <button @click.stop="quickEdit($event, task)" class="edit-btn">
                 <icon-base iconName="pencil"></icon-base>
               </button>
 
-              <div v-if="task.style.cover.style === 'solid'" class="task-prev-cover">
-                <div class="cover-clr" :style="'background-color:' + task.style.cover.color">
-                  <img class="cover-img" v-if="task.style.cover.type === 'img'" :src="task.style.cover.imgUrl" />
+              <div
+                v-if="task.style.cover.style === 'solid'"
+                class="task-prev-cover"
+              >
+                <div
+                  class="cover-clr"
+                  :style="'background-color:' + task.style.cover.color"
+                >
+                  <img
+                    class="cover-img"
+                    v-if="task.style.cover.type === 'img'"
+                    :src="task.style.cover.imgUrl"
+                  />
                 </div>
               </div>
 
@@ -43,13 +57,22 @@
                     : ''
                 "
                 :class="[
-                  task.style.cover.style === 'background' && task.style.cover.type === 'img' ? 'task-prev-bcg' : '',
-                  task.style.cover.style === 'background' && task.style.cover.type === 'color' ? 'task-prev-clr' : '',
+                  task.style.cover.style === 'background' &&
+                  task.style.cover.type === 'img'
+                    ? 'task-prev-bcg'
+                    : '',
+                  task.style.cover.style === 'background' &&
+                  task.style.cover.type === 'color'
+                    ? 'task-prev-clr'
+                    : '',
                 ]"
                 :task="task"
                 :group="group"
               ></task-preview>
-              <span class="bcg-helper" v-if="task.style.cover.style === 'background'"></span>
+              <span
+                class="bcg-helper"
+                v-if="task.style.cover.style === 'background'"
+              ></span>
             </li>
           </Draggable>
         </Container>
@@ -66,11 +89,15 @@
             ></textarea>
           </div>
           <div class="buttons-container">
-            <button @mousedown="addTask(group.id)" @touchstart="addTask(group.id)" class="add-card-btn">
+            <button
+              @mousedown="addTask(group.id)"
+              @touchstart="addTask(group.id)"
+              class="add-card-btn"
+            >
               Add card
             </button>
             <button @click="isNewTask = false">
-              <icon-base iconName="x"/>
+              <icon-base iconName="x" />
             </button>
           </div>
         </div>
@@ -104,11 +131,11 @@
 </template>
 
 <script>
-import { utilService } from '../../services/util.service.js';
-import { taskService } from '../../services/task.service';
-import { Container, Draggable } from 'vue3-smooth-dnd';
-import iconBase from '../icon-base.vue';
-import taskPreview from '../task/task-preview.vue';
+import { utilService } from "../../services/util.service.js";
+import { taskService } from "../../services/task.service";
+import { Container, Draggable } from "vue3-smooth-dnd";
+import iconBase from "../icon-base.vue";
+import taskPreview from "../task/task-preview.vue";
 // import resizableTextarea from './resizable-textarea.vue';
 
 export default {
@@ -125,12 +152,16 @@ export default {
       type: Object,
       required: false,
     },
+    isAllowed: {
+      type: Boolean,
+      required: true,
+    },
   },
   data() {
     return {
       isEditing: false,
       title: this.group.title,
-      taskTitle: '',
+      taskTitle: "",
       isNewTask: false,
       isTaskDragged: false,
       isEditModal: false,
@@ -141,20 +172,27 @@ export default {
     };
   },
   created() {
-    window.addEventListener('resize', this.onResize);
+    window.addEventListener("resize", this.onResize);
     // this.$store.commit({ type: 'setGroup', group: this.group });
   },
   methods: {
     async onDrop(dropResult) {
+      if(!this.isAllowed) return 
       const { addedIndex, removedIndex } = dropResult;
-      if (addedIndex || removedIndex || removedIndex === 0 || addedIndex === 0) {
+      if (
+        addedIndex ||
+        removedIndex ||
+        removedIndex === 0 ||
+        addedIndex === 0
+      ) {
         dropResult.payload = this.draggingCard.cardData;
         const res = utilService.applyDrag(this.group.tasks, dropResult);
         this.group.tasks = res;
-        this.$emit('onDragTask', { ...this.group });
+        this.$emit("onDragTask", { ...this.group });
       }
     },
     handleDragStart(dragResult) {
+      if(!this.isAllowed) return 
       const { isSource } = dragResult;
       const index = dragResult.payload.index;
       if (isSource) {
@@ -164,7 +202,7 @@ export default {
           cardData: this.group.tasks[index],
         };
 
-        this.$emit('setDraggedTask', { ...draggingCard });
+        this.$emit("setDraggedTask", { ...draggingCard });
       }
     },
     getChildPayload(index) {
@@ -176,7 +214,7 @@ export default {
       if (this.isEditModal) this.isEditModal = false;
     },
     openModalDetails(taskId) {
-      this.$emit('onOpen', taskId, this.group.id);
+      this.$emit("onOpen", taskId, this.group.id);
     },
     openEditModal(ev) {
       this.isEditModal = !this.isEditModal;
@@ -185,35 +223,41 @@ export default {
       this.isEditModal = false;
     },
     editGroup(group) {
+      if(!this.isAllowed) return 
       group.title;
-      this.$emit('editGroup', group);
+      this.$emit("editGroup", group);
       this.isEditing = false;
     },
     changeGroupTitle() {
       this.isEditing = true;
     },
     removeGroup(groupId) {
-      this.$emit('removeGroup', groupId);
+      if(!this.isAllowed) return 
+      this.$emit("removeGroup", groupId);
     },
     removeTask(taskId, groupId) {
-      this.$emit('removeTask', taskId, groupId);
+      if(!this.isAllowed) return 
+      this.$emit("removeTask", taskId, groupId);
     },
     createTask() {
       this.closeEditModal();
       this.isNewTask = !this.isNewTask;
     },
     addTask(groupId) {
-      this.$emit('addTask', this.newTask, groupId);
+      if(!this.isAllowed) return 
+      this.$emit("addTask", this.newTask, groupId);
       this.newTask = taskService.getEmptyTask();
       this.isNewTask = false;
     },
     quickEdit(ev, task) {
-      const { left, top, width } = ev.target.closest('li').getBoundingClientRect();
-      this.$emit('quickEdit', task, { left, top }, width);
+      const { left, top, width } = ev.target
+        .closest("li")
+        .getBoundingClientRect();
+      this.$emit("quickEdit", task, { left, top }, width);
     },
   },
   destroyed() {
-    window.removeEventListener('resize', this.onResize);
+    window.removeEventListener("resize", this.onResize);
   },
   components: {
     taskPreview,
