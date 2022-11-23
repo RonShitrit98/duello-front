@@ -100,6 +100,10 @@ export default {
       type: Object,
       required: true,
     },
+    isAllowed: {
+      type: Boolean,
+      required: true,
+    },
   },
   data() {
     return {

@@ -72,6 +72,7 @@
           :board="board"
           :task="task"
           :date="task.dueDate"
+          :isAllowed="isAllowed"
           @addMember="addMember"
           @updateTask="updateTask"
           @updateBoard="updateBoard"
@@ -126,19 +127,23 @@ export default {
   },
   methods: {
     async updateTask(task = this.task) {
+      if(!this.isAllowed) return
       utilService.spliceItem(task.id, this.group.tasks, task);
       utilService.spliceItem(this.group.id, this.board.groups, this.group);
       await this.boardStore.updateBoard(this.board);
     },
     async updateBoard(board = this.board) {
+      if(!this.isAllowed) return
       await this.boardStore.updateBoard(board);
     },
     removeTask() {
+      if(!this.isAllowed) return
       utilService.spliceItem(this.task.id, this.group.tasks);
       this.updateBoard();
       this.close();
     },
     addMember(member) {
+      if(!this.isAllowed) return
       const idx = this.taskToEdit.members.findIndex(
         (mmbr) => mmbr._id === member._id
       );
@@ -190,6 +195,7 @@ export default {
       this.cmp = null;
     },
     save() {
+      if(!this.isAllowed) return
       this.updateTask();
       this.close();
     },
@@ -213,6 +219,9 @@ export default {
     board() {
       return this.boardStore.currBoard;
     },
+    isAllowed(){
+      return this.boardStore.isUserAllowed
+    }
   },
 };
 </script>

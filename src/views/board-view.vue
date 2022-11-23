@@ -123,6 +123,7 @@ export default {
   },
   methods: {
     async onDragTask(group) {
+      if (!this.isAllowed) return;
       const updatedGroups = utilService.spliceItem(
         group.id,
         this.board.groups,
@@ -132,9 +133,11 @@ export default {
       await this.boardStore.updateBoard(this.board);
     },
     setDraggedTask(task) {
+      if (!this.isAllowed) return;
       this.draggingCard = task;
     },
     async onDrop(dropResult) {
+      if (!this.isAllowed) return;
       dropResult.payload = this.getChildPayload(dropResult.removedIndex);
       const res = utilService.applyDrag(this.board.groups, dropResult);
       this.board.groups = res;
@@ -159,6 +162,7 @@ export default {
       this.quickEditData = null;
     },
     addGroup(group) {
+      if (!this.isAllowed) return;
       this.board.groups.push(group);
       this.boardStore.updateBoard(this.board);
     },
@@ -176,6 +180,7 @@ export default {
       // this.$store.dispatch({ type: 'updateTask', taskPartial, groupId });
     },
     addTask(task, groupId, boardId) {
+      if (!this.isAllowed) return;
       const group = this.board.groups.find((g) => groupId === g.id);
       group.tasks.push(task);
       this.boardStore.updateBoard(this.board);
@@ -193,6 +198,9 @@ export default {
     },
     user() {
       return this.boardStore.currUser;
+    },
+    isAllowed() {
+      return this.boardStore.isUserAllowed;
     },
   },
   components: {
