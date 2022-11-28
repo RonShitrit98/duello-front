@@ -162,7 +162,7 @@ export default {
       this.boardToEdit.style.type = "img";
       const color = await designService.getAvgColor(img.url);
       this.boardToEdit.style.color = color.hex;
-      this.boardToEdit.style.isDark = color.isDark;
+      this.boardToEdit.style.isDark = isDarkColor(color.hex);
     },
     closeModal() {
       this.$emit("closeModal");
