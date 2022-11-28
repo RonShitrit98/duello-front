@@ -3,7 +3,7 @@ import router from '@/router';
 
 
 const BASE_URL =
-  process.env.NODE_ENV === "production" ? `/api/` : "http://127.0.0.1:3030/api/";
+  process.env.NODE_ENV !== "production" ? `/api/` : "http://127.0.0.1:3030/api/";
 
   console.log(process.env.NODE_ENV)
 var axios = Axios.create({
