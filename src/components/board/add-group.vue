@@ -20,7 +20,7 @@
           Add list
         </button>
         <button @click="addedGroup = !addedGroup">
-          <img src="../assets/icons/x.svg" alt="close form" />
+          <img src="../../assets/icons/x.svg" alt="close form" />
         </button>
       </div>
     </form>

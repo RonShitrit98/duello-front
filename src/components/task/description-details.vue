@@ -34,7 +34,7 @@
           <button class="save-description" @click="saveDesc">Save</button>
           <button class="close-btn">
             <img
-              src="../assets/icons/x.svg"
+              src="../../assets/icons/x.svg"
               alt="close"
               @click="addDescription = !addDescription"
             />

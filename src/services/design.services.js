@@ -3,7 +3,7 @@ import axios from "axios";
 import { FastAverageColor } from "fast-average-color";
 
 const DESIGN = {
-  imgs: await getImgs(),
+  imgs: getImgs(),
   colors: [
     {
       id: utilService.makeId(),
